@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Terminal, ShieldAlert } from "lucide-react";
 import { MagneticButton } from "@/components/common/MagneticButton";
 
-export default function NotFound() {
+function NotFoundContent() {
   return (
     <div className="min-h-screen bg-[#050505] text-foreground flex flex-col items-center justify-center p-6 font-mono text-xs select-none">
       <div className="max-w-md w-full glass-panel p-8 rounded-xl border border-white/5 space-y-6 text-center shadow-2xl relative overflow-hidden">
@@ -48,3 +48,5 @@ export default function NotFound() {
     </div>
   );
 }
+
+export default NotFoundContent;

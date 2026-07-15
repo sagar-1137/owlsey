@@ -2,6 +2,9 @@
 
 import React, { useEffect, useRef } from "react";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { MOTION_CONFIG } from "@/lib/motionConfig";
+import { EnhancedMarquee } from "@/components/motion/EnhancedMarquee";
 import { GridJunctions } from "@/components/common/GridJunctions";
 import {
   row1, row2, row3, row4, row5,
@@ -61,33 +64,79 @@ const streams = [
 
 export const TechWeUse: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const gsap = ensureGsap();
     const root = sectionRef.current;
-    if (!root) return;
+    if (!root || prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      const cols = root.querySelectorAll<HTMLElement>("[data-stream-col]");
-      const content = Array.from(cols).flatMap((column) => Array.from(column.children));
-      gsap.set(content, { opacity: 0, y: 16, filter: "blur(2px)" });
+      // Main heading animation
+      const heading = root.querySelector("h2");
+      if (heading) {
+        gsap.from(heading, {
+          yPercent: 20,
+          opacity: 0,
+          duration: MOTION_CONFIG.timing.primaryReveal,
+          ease: MOTION_CONFIG.easing.revealOutStrong,
+          scrollTrigger: {
+            trigger: heading,
+            start: "top 75%",
+            markers: MOTION_CONFIG.debug,
+            once: true,
+          },
+        });
+      }
 
-      ScrollTrigger.batch(cols, {
-        start: "top 84%",
-        onEnter: (els) => {
-          const targets = els.flatMap((column) => Array.from(column.children));
-          gsap.to(targets, {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.75,
-            stagger: 0.04,
-            ease: "power4.out",
-            clearProps: "transform,filter",
-          });
+      // Subheading and description
+      const subheadingBox = root.querySelectorAll(".modular-box")[1];
+      if (subheadingBox) {
+        gsap.from(subheadingBox, {
+          opacity: 0,
+          yPercent: 15,
+          duration: MOTION_CONFIG.timing.supportingReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          scrollTrigger: {
+            trigger: subheadingBox,
+            start: "top 70%",
+            once: true,
+          },
+        });
+      }
+
+      // Tech stream columns with staggered entrance
+      const cols = root.querySelectorAll<HTMLElement>("[data-stream-col]");
+      gsap.from(cols, {
+        yPercent: 30,
+        opacity: 0,
+        filter: "blur(8px)",
+        duration: MOTION_CONFIG.timing.primaryReveal,
+        ease: MOTION_CONFIG.easing.revealOut,
+        stagger: MOTION_CONFIG.stagger.minimal,
+        scrollTrigger: {
+          trigger: ".section-dark.chapter-steel",
+          start: "top 65%",
+          markers: MOTION_CONFIG.debug,
+          once: true,
         },
       });
 
+      // Dividers animation
+      const dividers = root.querySelectorAll(".border-t");
+      if (dividers.length > 0) {
+        gsap.from(dividers, {
+          scaleX: 0,
+          transformOrigin: "left",
+          duration: MOTION_CONFIG.timing.supportingReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: ".section-dark.chapter-steel",
+            start: "top 60%",
+          },
+        });
+      }
     }, root);
 
     return () => {
@@ -96,7 +145,7 @@ export const TechWeUse: React.FC = () => {
         .filter((t) => t.vars.trigger === root)
         .forEach((t) => t.kill());
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <section
