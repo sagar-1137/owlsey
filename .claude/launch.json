@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "owlsey-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "${PORT}"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "owlsey-static",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [".claude/static-server.mjs"],
+      "port": 4321,
+      "autoPort": true
+    }
+  ]
+}
