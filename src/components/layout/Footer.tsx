@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Clock, Globe, Mail, Target } from "lucide-react";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { MOTION_CONFIG } from "@/lib/motionConfig";
 import { GridJunctions } from "@/components/common/GridJunctions";
 
 const FOOTER_LINKS = [
@@ -52,25 +54,145 @@ const FOOTER_SOCIALS = [
 
 export const Footer: React.FC = () => {
   const footerRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
   const year = new Date().getFullYear();
 
   useEffect(() => {
     const root = footerRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || prefersReducedMotion) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
+      // PHASE 1: Main CTA panel reveal with clip-path
+      const ctaPanel = root.querySelector(".footer-cta") as HTMLElement;
+      if (ctaPanel) {
+        // Animate clip-path inset to reveal panel
+        gsap.from(ctaPanel, {
+          clipPath: "inset(100% 0 0 0)",
+          duration: MOTION_CONFIG.timing.primaryReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          scrollTrigger: {
+            trigger: root,
+            start: "top 75%",
+            markers: MOTION_CONFIG.debug,
+            once: true,
+          },
+        });
+
+        // Animate "02 / Start" label first
+        const ctaLabel = ctaPanel.querySelector(".display-kicker:last-of-type");
+        if (ctaLabel) {
+          gsap.from(ctaLabel, {
+            opacity: 0,
+            yPercent: 10,
+            duration: 0.6,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: root,
+              start: "top 70%",
+              once: true,
+            },
+          });
+        }
+
+        // Animate heading next
+        const ctaHeading = ctaPanel.querySelector(".modular-display");
+        if (ctaHeading) {
+          gsap.from(ctaHeading, {
+            yPercent: 20,
+            opacity: 0,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOutStrong,
+            scrollTrigger: {
+              trigger: root,
+              start: "top 65%",
+              once: true,
+            },
+          });
+        }
+
+        // Animate rule and button last
+        const ctaRule = ctaPanel.querySelector(".footer-cta-rule");
+        if (ctaRule) {
+          gsap.from(ctaRule, {
+            opacity: 0,
+            yPercent: 15,
+            duration: MOTION_CONFIG.timing.supportingReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: root,
+              start: "top 60%",
+              once: true,
+            },
+          });
+        }
+      }
+
+      // PHASE 2: Footer navigation rows stagger
+      const navLinks = root.querySelectorAll(".footer-nav a");
+      if (navLinks.length > 0) {
+        gsap.from(navLinks, {
+          opacity: 0,
+          xPercent: -8,
+          duration: MOTION_CONFIG.timing.supportingReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          stagger: MOTION_CONFIG.stagger.minimal,
+          scrollTrigger: {
+            trigger: root,
+            start: "top 70%",
+            markers: MOTION_CONFIG.debug,
+            once: true,
+          },
+        });
+
+        // Animate indices before labels
+        const indices = root.querySelectorAll(".footer-link-index");
+        if (indices.length > 0) {
+          gsap.from(indices, {
+            opacity: 0,
+            duration: 0.5,
+            ease: MOTION_CONFIG.easing.revealOut,
+            stagger: MOTION_CONFIG.stagger.minimal,
+            scrollTrigger: {
+              trigger: root,
+              start: "top 72%",
+              once: true,
+            },
+          });
+        }
+      }
+
+      // PHASE 3: Divider lines animation
+      const dividerLines = root.querySelectorAll("[data-footer-cell] .border-t, [data-footer-cell] .border-b");
+      if (dividerLines.length > 0) {
+        gsap.from(dividerLines, {
+          scaleX: 0,
+          transformOrigin: "left",
+          duration: MOTION_CONFIG.timing.supportingReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: root,
+            start: "top 65%",
+            markers: MOTION_CONFIG.debug,
+          },
+        });
+      }
+
+      // PHASE 4: General cell reveals (fallback for remaining cells)
       const cells = root.querySelectorAll<HTMLElement>("[data-footer-cell]:not([data-motion-static])");
-      // Background art (glow, dot grids) is ambient — it should sit still while
-      // the copy reveals, so it is excluded from the stagger.
       const revealable = (cell: Element) =>
         Array.from(cell.children).filter(
-          (child) => !child.classList.contains("footer-glow") && !child.classList.contains("footer-dots")
+          (child) =>
+            !child.classList.contains("footer-glow") &&
+            !child.classList.contains("footer-dots") &&
+            !child.classList.contains("border-t") &&
+            !child.classList.contains("border-b")
         );
       const content = Array.from(cells).flatMap(revealable);
       gsap.set(content, { opacity: 0, y: 16, filter: "blur(2px)" });
       ScrollTrigger.batch(cells, {
-        start: "top 90%",
+        start: "top 85%",
         once: true,
         onEnter: (elements) => {
           const targets = elements.flatMap(revealable);
@@ -78,9 +200,9 @@ export const Footer: React.FC = () => {
             opacity: 1,
             y: 0,
             filter: "blur(0px)",
-            duration: 0.72,
-            stagger: 0.035,
-            ease: "power4.out",
+            duration: MOTION_CONFIG.timing.supportingReveal,
+            stagger: MOTION_CONFIG.stagger.minimal,
+            ease: MOTION_CONFIG.easing.revealOut,
             clearProps: "transform,filter",
           });
         },
@@ -88,7 +210,7 @@ export const Footer: React.FC = () => {
     }, root);
 
     return () => ctx.revert();
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <footer ref={footerRef} id="contact" className="chapter-obsidian relative w-full" data-chapter="Contact" aria-labelledby="footer-title">

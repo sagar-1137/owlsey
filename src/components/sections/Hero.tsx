@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from "react";
 import { ArrowRight, ArrowUpRight, Target } from "lucide-react";
 import { MagneticGsap } from "@/components/common/MagneticGsap";
 import { ensureGsap } from "@/lib/gsap";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { MOTION_CONFIG } from "@/lib/motionConfig";
 import { OwlseyMainGraphic } from "./OwlseyMainGraphic";
 
 const capabilities = ["Business platforms", "Internal tools", "Connected workflows"];
@@ -12,13 +14,15 @@ const gridRows = [0, 50, 100];
 
 export const Hero: React.FC = () => {
   const heroRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const root = heroRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || prefersReducedMotion) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
+      // PHASE 1: Initial entrance timeline (~2.8s total)
       const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       timeline
@@ -38,6 +42,7 @@ export const Hero: React.FC = () => {
           0.5
         );
 
+      // PHASE 2: Hero parallax - art element continuous scroll
       gsap.to("[data-hero-art]", {
         yPercent: 10,
         scale: 0.94,
@@ -49,10 +54,118 @@ export const Hero: React.FC = () => {
           scrub: 0.8,
         },
       });
+
+      // PHASE 3: Hero scroll choreography - emblem and metadata parallax
+      const isDesktop = window.innerWidth >= MOTION_CONFIG.breakpoints.desktop;
+      
+      if (isDesktop) {
+        // Emblem expansion and lift
+        gsap.to("[data-hero-visual]", {
+          scale: 1.1,
+          yPercent: -15,
+          duration: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "center center",
+            end: "bottom 30%",
+            scrub: 1,
+            markers: MOTION_CONFIG.debug,
+          },
+        });
+
+        // Metadata left (slower parallax)
+        gsap.to(".longbow-hero-meta-left", {
+          xPercent: -12,
+          opacity: 0.5,
+          duration: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "center center",
+            end: "bottom 30%",
+            scrub: 1,
+          },
+        });
+
+        // Metadata right (faster parallax)
+        gsap.to(".longbow-hero-meta-right", {
+          xPercent: 20,
+          opacity: 0.5,
+          duration: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "center center",
+            end: "bottom 30%",
+            scrub: 1,
+          },
+        });
+
+        // Supporting text fade and movement
+        gsap.to(".longbow-hero-intro p:last-of-type", {
+          yPercent: 15,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "bottom 40%",
+            end: "bottom 20%",
+            scrub: 0.6,
+            markers: MOTION_CONFIG.debug,
+          },
+        });
+      }
+
+      // PHASE 4: Hero exit sequence - upward movement and dispersion
+      if (isDesktop) {
+        gsap.to("[data-hero-visual]", {
+          yPercent: -80,
+          scale: 0.9,
+          opacity: 0.3,
+          duration: 1,
+          ease: "power2.inOut",
+          scrollTrigger: {
+            trigger: root,
+            start: "bottom 60%",
+            end: "bottom 20%",
+            scrub: 0.8,
+            markers: MOTION_CONFIG.debug,
+          },
+        });
+
+        // Metadata disperses outward
+        gsap.to(".longbow-hero-meta-left", {
+          xPercent: -40,
+          opacity: 0,
+          duration: 0.9,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "bottom 55%",
+            end: "bottom 25%",
+            scrub: 0.7,
+          },
+        });
+
+        gsap.to(".longbow-hero-meta-right", {
+          xPercent: 50,
+          opacity: 0,
+          duration: 0.9,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: root,
+            start: "bottom 55%",
+            end: "bottom 25%",
+            scrub: 0.7,
+          },
+        });
+      }
     }, root);
 
     return () => ctx.revert();
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <section ref={heroRef} id="home" className="chapter-smoke relative" data-chapter="Direction">
