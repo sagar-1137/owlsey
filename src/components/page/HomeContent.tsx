@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { StatsBar } from "@/components/sections/StatsBar";
 import { Projects } from "@/components/sections/Projects";
+import { TechMarqueeSection } from "@/components/sections/TechMarqueeSection";
 
 export default function HomeContent() {
   return (
@@ -22,6 +23,7 @@ export default function HomeContent() {
           <Hero />
           <StatsBar />
           <Projects />
+          <TechMarqueeSection />
         </main>
         <Footer />
       </div>

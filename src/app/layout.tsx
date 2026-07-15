@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LoaderWrapper } from "@/components/common/LoaderWrapper";
+import { PageTransitionLoader } from "@/components/common/PageTransitionLoader";
 import { CustomCursor } from "@/components/common/CustomCursor";
 
 const inter = Inter({
@@ -167,6 +168,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <LoaderWrapper />
+          <PageTransitionLoader />
           <CustomCursor />
           {children}
         </ThemeProvider>

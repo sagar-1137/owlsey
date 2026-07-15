@@ -19,6 +19,8 @@ import { GridJunctions } from "@/components/common/GridJunctions";
 import { MotionLayer } from "@/components/common/MotionLayer";
 import { ScrollDirector } from "@/components/common/ScrollDirector";
 import { SmoothScroll } from "@/components/common/SmoothScroll";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { MOTION_CONFIG } from "@/lib/motionConfig";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 
 const SERVICE_TYPES = [
@@ -71,39 +73,111 @@ const DECISION_POINTS = [
 
 export default function ServicesContent() {
   const pageRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const root = pageRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || prefersReducedMotion) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
-      const cells = root.querySelectorAll<HTMLElement>("[data-services-cell]");
+      // Main hero grid cells with staggered entrance
+      const heroGridCells = root.querySelectorAll<HTMLElement>(".services-hero-grid [data-services-cell]");
+      gsap.from(heroGridCells, {
+        yPercent: 30,
+        opacity: 0,
+        filter: "blur(8px)",
+        duration: MOTION_CONFIG.timing.primaryReveal,
+        ease: MOTION_CONFIG.easing.revealOutStrong,
+        stagger: MOTION_CONFIG.stagger.minimal,
+        scrollTrigger: {
+          trigger: ".services-hero-grid",
+          start: "top 75%",
+          markers: MOTION_CONFIG.debug,
+          once: true,
+        },
+      });
 
-      ScrollTrigger.batch(cells, {
-        start: "top 86%",
-        once: true,
-        onEnter: (elements) => {
-          const content = elements.flatMap((cell) => Array.from(cell.children));
-          gsap.fromTo(
-            content,
-            { opacity: 0, y: 14, filter: "blur(2px)" },
-            {
-              opacity: 1,
-              y: 0,
-              filter: "blur(0px)",
-              duration: 0.72,
-              stagger: 0.035,
-              ease: "power4.out",
-              clearProps: "transform,filter",
-            }
-          );
+      // Service pill animations
+      gsap.from(".services-pill-list span", {
+        opacity: 0,
+        scale: 0.92,
+        duration: MOTION_CONFIG.timing.supportingReveal,
+        ease: MOTION_CONFIG.easing.revealOut,
+        stagger: 0.06,
+        scrollTrigger: {
+          trigger: ".services-pill-list",
+          start: "top 80%",
+          once: true,
+        },
+      });
+
+      // Service range grid with alternating animations
+      const rangeGridCells = root.querySelectorAll<HTMLElement>(".services-range-grid [data-services-cell]");
+      rangeGridCells.forEach((cell, index) => {
+        if (index === 0) {
+          // Header cell enters from top-left
+          gsap.from(cell, {
+            xPercent: -10,
+            yPercent: 20,
+            opacity: 0,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: ".services-range-grid",
+              start: "top 70%",
+              once: true,
+            },
+          });
+        } else if (index === 1) {
+          // Second cell fades in
+          gsap.from(cell, {
+            opacity: 0,
+            yPercent: 15,
+            duration: MOTION_CONFIG.timing.supportingReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: ".services-range-grid",
+              start: "top 68%",
+              once: true,
+            },
+          });
+        } else {
+          // Capability cards with scale entrance
+          gsap.from(cell, {
+            yPercent: 40,
+            opacity: 0,
+            scale: 0.95,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            stagger: 0.08,
+            scrollTrigger: {
+              trigger: ".services-range-grid",
+              start: "top 65%",
+              once: true,
+            },
+          });
+        }
+      });
+
+      // CTA buttons hover effect
+      gsap.set("[data-motion-link]", { "--rotate": 0 });
+      gsap.to("[data-motion-link]", {
+        "--rotate": -5,
+        duration: 0.4,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: "[data-motion-link]",
+          start: "top 70%",
+          onEnter: () => {
+            gsap.to("[data-motion-link]", { "--rotate": -5 });
+          },
         },
       });
     }, root);
 
     return () => ctx.revert();
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <div ref={pageRef} className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">

@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { MOTION_CONFIG } from "@/lib/motionConfig";
 import { ArrowUpRight } from "lucide-react";
 import { GridJunctions } from "@/components/common/GridJunctions";
 
@@ -34,32 +36,119 @@ const solutions = [
 
 export const Projects: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const gsap = ensureGsap();
     const root = sectionRef.current;
-    if (!root) return;
+    if (!root || prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      const rows = root.querySelectorAll<HTMLElement>("[data-project-row]");
-      const content = Array.from(rows).flatMap((row) => Array.from(row.children));
-      gsap.set(content, { opacity: 0, y: 16, filter: "blur(2px)" });
+      // Title reveal animation
+      const heading = root.querySelector("h2");
+      if (heading) {
+        const words = heading.querySelectorAll(".home-accent-word, .accent-stop");
+        gsap.from(words, {
+          yPercent: 105,
+          opacity: 0,
+          duration: MOTION_CONFIG.timing.primaryReveal,
+          ease: MOTION_CONFIG.easing.revealOutStrong,
+          stagger: MOTION_CONFIG.stagger.minimal,
+          scrollTrigger: {
+            trigger: heading,
+            start: "top 75%",
+            markers: MOTION_CONFIG.debug,
+            once: true,
+          },
+        });
+      }
 
-      ScrollTrigger.batch(rows, {
-        start: "top 84%",
-        onEnter: (els) => {
-          const targets = els.flatMap((row) => Array.from(row.children));
-          gsap.to(targets, {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.75,
-            stagger: 0.04,
-            ease: "power4.out",
-            clearProps: "transform,filter",
+      // Card entrance animations with alternating directions
+      const rows = root.querySelectorAll<HTMLElement>("[data-project-row]");
+      rows.forEach((row, idx) => {
+        const children = Array.from(row.children);
+        
+        // Determine if desktop for more complex animations
+        const isDesktop = window.innerWidth >= MOTION_CONFIG.breakpoints.desktop;
+
+        if (isDesktop && idx === 0) {
+          // Card 0: Enter from left
+          gsap.from(row, {
+            xPercent: -8,
+            opacity: 0,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scale: 0.97,
+            scrollTrigger: {
+              trigger: row,
+              start: "top 80%",
+              markers: MOTION_CONFIG.debug,
+              once: true,
+            },
           });
-        },
+        } else if (isDesktop && idx === 1) {
+          // Card 1: Enter from bottom
+          gsap.from(row, {
+            yPercent: 70,
+            opacity: 0,
+            scale: 0.97,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: row,
+              start: "top 80%",
+              markers: MOTION_CONFIG.debug,
+              once: true,
+            },
+          });
+        } else if (isDesktop && idx === 2) {
+          // Card 2: Enter from right
+          gsap.from(row, {
+            xPercent: 8,
+            opacity: 0,
+            scale: 0.97,
+            duration: MOTION_CONFIG.timing.primaryReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: row,
+              start: "top 80%",
+              markers: MOTION_CONFIG.debug,
+              once: true,
+            },
+          });
+        } else {
+          // Fallback for mobile or unspecified indices
+          gsap.from(row, {
+            yPercent: 45,
+            opacity: 0,
+            duration: MOTION_CONFIG.timing.supportingReveal,
+            ease: MOTION_CONFIG.easing.revealOut,
+            scrollTrigger: {
+              trigger: row,
+              start: "top 85%",
+              markers: MOTION_CONFIG.debug,
+              once: true,
+            },
+          });
+        }
       });
+
+      // Divider lines animation
+      const dividers = root.querySelectorAll("[data-project-row] .border-t");
+      if (dividers.length > 0) {
+        gsap.from(dividers, {
+          scaleX: 0,
+          transformOrigin: "left",
+          duration: MOTION_CONFIG.timing.supportingReveal,
+          ease: MOTION_CONFIG.easing.revealOut,
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: root,
+            start: "top 70%",
+            markers: MOTION_CONFIG.debug,
+          },
+        });
+      }
     }, root);
 
     return () => {
@@ -68,7 +157,7 @@ export const Projects: React.FC = () => {
         .filter((t) => t.vars.trigger === root)
         .forEach((t) => t.kill());
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <section
