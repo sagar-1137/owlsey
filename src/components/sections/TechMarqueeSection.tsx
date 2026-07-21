@@ -7,7 +7,6 @@ import {
   SiBlender,
   SiClaude,
   SiCss,
-  SiCursor,
   SiFigma,
   SiFlutter,
   SiFramer,
@@ -23,7 +22,6 @@ import {
   SiNestjs,
   SiNextdotjs,
   SiNodedotjs,
-  SiNotion,
   SiPenpot,
   SiPhp,
   SiPostgresql,
@@ -64,10 +62,8 @@ const techGroups = [
       { name: "Node.js", Icon: SiNodedotjs },
       { name: "NestJS", Icon: SiNestjs },
       { name: "Python", Icon: SiPython },
-      { name: "Go", Icon: GoMark },
       { name: "Rust", Icon: SiRust },
       { name: "PHP", Icon: SiPhp },
-      { name: "REST", Icon: RestMark },
     ],
   },
   {
@@ -81,7 +77,6 @@ const techGroups = [
       { name: "Prisma", Icon: SiPrisma },
       { name: "Redis", Icon: SiRedis },
       { name: "Git", Icon: SiGit },
-      { name: "AWS", Icon: AwsMark },
     ],
   },
   {
@@ -90,9 +85,6 @@ const techGroups = [
     tools: [
       { name: "Figma", Icon: SiFigma },
       { name: "Framer", Icon: SiFramer },
-      { name: "Photoshop", Icon: PsMark },
-      { name: "Illustrator", Icon: AiMark },
-      { name: "After Effects", Icon: AeMark },
       { name: "Blender", Icon: SiBlender },
       { name: "Penpot", Icon: SiPenpot },
     ],
@@ -101,14 +93,11 @@ const techGroups = [
     id: "A-05",
     label: "AI & ML",
     tools: [
-      { name: "OpenAI", Icon: OpenAiMark },
       { name: "Claude", Icon: SiClaude },
       { name: "LangChain", Icon: SiLangchain },
       { name: "Hugging Face", Icon: SiHuggingface },
-      { name: "Cursor", Icon: SiCursor },
       { name: "Copilot", Icon: SiGithubcopilot },
       { name: "Vercel AI", Icon: SiVercel },
-      { name: "Notion", Icon: SiNotion },
     ],
   },
 ];
@@ -258,48 +247,6 @@ function TechLogoRow({ index, tools }: { index: number; tools: TechLogo[] }) {
   );
 }
 
-function GoMark({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 96 64" fill="none" className={className} aria-hidden="true">
-      <path d="M14 25h28M8 34h30M18 43h20" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-      <path d="M58.5 49c-10 0-17.5-6.3-17.5-15 0-10.2 9.3-19 21.6-19 7.2 0 12.7 2.8 15.6 7.1M72 34H60" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M78 34c0 9-7.9 15-19.5 15" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function RestMark({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 96 64" fill="none" className={className} aria-hidden="true">
-      <path d="M16 22h40M16 42h40M56 22l12 12-12 12" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M74 18h6v6M80 18 66 32" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PsMark({ size = 24, className }: { size?: number; className?: string }) {
-  return <AdobeMark size={size} className={className} label="Ps" />;
-}
-
-function AiMark({ size = 24, className }: { size?: number; className?: string }) {
-  return <AdobeMark size={size} className={className} label="Ai" />;
-}
-
-function AeMark({ size = 24, className }: { size?: number; className?: string }) {
-  return <AdobeMark size={size} className={className} label="Ae" />;
-}
-
-function AdobeMark({ size = 24, className, label }: { size?: number; className?: string; label: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" className={className} aria-hidden="true">
-      <rect x="10" y="10" width="44" height="44" rx="8" stroke="currentColor" strokeWidth="5" />
-      <text x="32" y="38" fill="currentColor" textAnchor="middle" fontSize="18" fontWeight="700" fontFamily="Arial, sans-serif">
-        {label}
-      </text>
-    </svg>
-  );
-}
-
 function TechCell({ tech }: { tech: TechLogo }) {
   const Icon = tech.Icon;
 
@@ -312,34 +259,5 @@ function TechCell({ tech }: { tech: TechLogo }) {
         {tech.name}
       </span>
     </div>
-  );
-}
-
-function OpenAiMark({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M31.6 7.8c5.3-3 12-.9 14.8 4.6 1.6 3.1 1.6 6.6.3 9.6 3.5.8 6.5 3.2 8 6.7 2.4 5.6-.4 12.1-6 14.4-.7.3-1.4.5-2.1.6.3 3.7-1.4 7.5-4.8 9.8-5.1 3.5-12.1 2.1-15.5-3.1-.4-.6-.8-1.3-1.1-1.9-3.4 1.5-7.5 1.2-10.8-1.2-5-3.6-6-10.7-2.3-15.6.4-.5.8-1 1.3-1.4-2.7-2.5-4-6.3-3.2-10.1 1.2-6 7.2-9.9 13.2-8.6.6.1 1.2.3 1.8.5 1.2-1.8 2.7-3.3 4.6-4.4l1.8-.9Z"
-        stroke="currentColor"
-        strokeWidth="4.2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M24.9 12.5 42.5 23v19.8M46.8 22.1 29.2 32.3 12.7 22.9M13.3 31l17.4 10.1 17.1-9.9M25.2 48.4V28.8L42 18.9M18.3 45.5V25.7L35.6 15.5"
-        stroke="currentColor"
-        strokeWidth="3.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function AwsMark({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 96 64" fill="none" className={className} aria-hidden="true">
-      <path d="M17 28c0-10.5 8.5-19 19-19 7.5 0 14.1 4.4 17.2 10.7A18.6 18.6 0 0 1 61 18c10.5 0 19 8.5 19 19S71.5 56 61 56H31C18.9 56 9 46.1 9 34c0-7.7 4-14.5 10-18.4" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M25 36h7.5l3.5-12 3.5 12H47M32.5 36l1.2-4.2h4.6M52 25v11M52 25h9.5c3.2 0 5.5 2.2 5.5 5.2S64.7 36 61.5 36H52" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }
