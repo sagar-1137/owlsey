@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import HomeContent from "@/components/page/HomeContent";
 
 export const metadata: Metadata = {
-  title: "Owlsey | Custom Software & Digital Solutions",
+  title: { absolute: "Owlsey | Custom Software & Digital Solutions" },
   description:
     "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability. Turning your product vision into a production-ready reality.",
+  alternates: { canonical: "https://owlsey.com" },
   keywords: [
     "custom software development",
     "web application development",

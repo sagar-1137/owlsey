@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import PrivacyContent from "@/components/page/PrivacyContent";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Owlsey",
+  title: "Privacy Policy",
   description:
     "Owlsey's Privacy Policy - Learn how we collect, use, and protect your personal information when you use our software development services.",
+  alternates: { canonical: "https://owlsey.com/privacy" },
   keywords: [
     "privacy policy",
     "data protection",

@@ -17,9 +17,7 @@ import {
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { GridJunctions } from "@/components/common/GridJunctions";
-import { MotionLayer } from "@/components/common/MotionLayer";
-import { ScrollDirector } from "@/components/common/ScrollDirector";
-import { SmoothScroll } from "@/components/common/SmoothScroll";
+import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { PROJECT_CASES } from "@/data/projectCases";
 
@@ -41,7 +39,7 @@ export default function ProjectsContent() {
 
   useEffect(() => {
     const root = pageRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)").matches) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
@@ -54,15 +52,14 @@ export default function ProjectsContent() {
           const content = elements.flatMap((cell) => Array.from(cell.children));
           gsap.fromTo(
             content,
-            { opacity: 0, y: 14, filter: "blur(2px)" },
+            { opacity: 0, y: 14 },
             {
               opacity: 1,
               y: 0,
-              filter: "blur(0px)",
               duration: 0.72,
               stagger: 0.035,
               ease: "power4.out",
-              clearProps: "transform,filter",
+              clearProps: "transform,opacity,filter",
             }
           );
         },
@@ -74,9 +71,7 @@ export default function ProjectsContent() {
 
   return (
     <div ref={pageRef} className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">
-      <ScrollDirector />
-      <SmoothScroll />
-      <MotionLayer />
+      <DeferredEnhancements />
       <div className="modular-shell palette-white projects-shell w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>
@@ -150,7 +145,7 @@ export default function ProjectsContent() {
                 </p>
               </div>
 
-              <div data-projects-cell className="modular-box projects-proof">
+              <div data-projects-cell className="modular-box projects-proof flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-faint)]">What matters</p>
                 <div>
                   <p className="modular-display max-w-[8ch] text-[clamp(2.9rem,4.8vw,5.2rem)] text-[color:var(--text-strong)]">
@@ -175,7 +170,7 @@ export default function ProjectsContent() {
                 </h2>
               </div>
 
-              <div data-projects-cell className="modular-box flex flex-col justify-between">
+              <div data-projects-cell className="modular-box projects-range-note flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-faint)]">Confidential by default</p>
                 <p className="max-w-[18ch] text-[clamp(1.4rem,2.1vw,2.15rem)] leading-[1.08] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
                   Client details stay protected. The pattern is enough.

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
+import { ensureGsap, ScrollTrigger, SplitText } from "@/lib/gsap";
 
 export const MotionLayer = () => {
   useEffect(() => {
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
+    if (reducedMotion || !finePointer) return;
 
     const gsap = ensureGsap();
+    const headingSplits: SplitText[] = [];
     const cards = Array.from(
       document.querySelectorAll<HTMLElement>(
         ".palette-white .modular-box:not([data-motion-static]):not([data-no-card-motion])"
@@ -147,18 +148,119 @@ export const MotionLayer = () => {
     const ctx = gsap.context(() => {
       document.querySelectorAll<HTMLElement>("[data-chapter]").forEach((chapter) => {
         const headings = chapter.querySelectorAll<HTMLElement>(".modular-display");
-        if (!headings.length) return;
+        if (headings.length) {
+          ScrollTrigger.create({
+            trigger: chapter,
+            start: "top bottom",
+            end: "bottom top",
+            animation: gsap.fromTo(
+              headings,
+              { yPercent: 3.5 },
+              { yPercent: -3.5, ease: "none", stagger: 0.025 }
+            ),
+            scrub: 0.85,
+          });
+        }
 
-        ScrollTrigger.create({
-          trigger: chapter,
-          start: "top bottom",
-          end: "bottom top",
-          animation: gsap.fromTo(
-            headings,
-            { yPercent: 1.5 },
-            { yPercent: -1.5, ease: "none", stagger: 0.025 }
-          ),
-          scrub: 0.65,
+        const sceneHeading = chapter.querySelector<HTMLElement>("h2.modular-display");
+        if (sceneHeading) {
+          const split = SplitText.create(sceneHeading, {
+            type: "words",
+            wordsClass: "motion-split-word",
+          });
+          headingSplits.push(split);
+
+          gsap.fromTo(
+            split.words,
+            { yPercent: 112, rotation: 2.5, filter: "blur(5px)", autoAlpha: 0 },
+            {
+              yPercent: 0,
+              rotation: 0,
+              filter: "blur(0px)",
+              autoAlpha: 1,
+              stagger: 0.035,
+              ease: "none",
+              scrollTrigger: {
+                trigger: chapter,
+                start: "top 88%",
+                end: "top 42%",
+                scrub: 0.7,
+              },
+            },
+          );
+
+          const chapterIndex = Array.from(document.querySelectorAll("[data-chapter]")).indexOf(chapter);
+          gsap.fromTo(
+            sceneHeading,
+            {
+              xPercent: chapterIndex % 2 === 0 ? -9 : 7,
+              scale: 0.96,
+              transformOrigin: chapterIndex % 2 === 0 ? "left center" : "right center",
+            },
+            {
+              xPercent: chapterIndex % 2 === 0 ? 5 : -5,
+              scale: 1.035,
+              ease: "none",
+              scrollTrigger: {
+                trigger: chapter,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1,
+              },
+            },
+          );
+        }
+
+        // Reference-study finding: the premium feel comes from one continuous
+        // scroll-linked composition, not isolated entrance tweens. Unowned
+        // grid cells therefore settle into the stage as the chapter crosses
+        // the viewport. Components with bespoke motion keep their own timing.
+        if (chapter.matches(".tech-logo-section")) return;
+        const stageCells = Array.from(
+          chapter.querySelectorAll<HTMLElement>(
+            ".modular-box:not([data-operating-cell]):not([data-project-row])"
+          )
+        );
+        if (!stageCells.length) return;
+
+        const stage = gsap.timeline({
+          scrollTrigger: {
+            trigger: chapter,
+            start: "top 92%",
+            end: "top 30%",
+            scrub: 0.75,
+          },
+        });
+        stageCells.forEach((cell, index) => {
+          const cellContent = Array.from(cell.children).filter(
+            (child): child is HTMLElement => child instanceof HTMLElement,
+          );
+          if (!cellContent.length) return;
+
+          const entersFromLeft = index % 2 === 0;
+
+          stage.fromTo(
+            cellContent,
+            {
+              x: entersFromLeft ? -38 : 38,
+              y: 52 + Math.min(index, 3) * 6,
+              rotation: entersFromLeft ? -1.2 : 1.2,
+              transformOrigin: entersFromLeft ? "left bottom" : "right bottom",
+              opacity: 0.2,
+              filter: "blur(4px)",
+            },
+            {
+              x: 0,
+              y: 0,
+              rotation: 0,
+              opacity: 1,
+              filter: "blur(0px)",
+              ease: "none",
+              duration: 1,
+              stagger: 0.025,
+            },
+            index * 0.11,
+          );
         });
       });
     });
@@ -174,6 +276,7 @@ export const MotionLayer = () => {
       if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
       cards.forEach((card) => card.classList.remove("motion-card", "is-motion-hovered"));
       ctx.revert();
+      headingSplits.forEach((split) => split.revert());
     };
   }, []);
 

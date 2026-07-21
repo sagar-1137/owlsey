@@ -40,7 +40,8 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     if (!isOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
@@ -66,10 +67,12 @@ export const Navbar: React.FC = () => {
     };
 
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
     return () => {
       window.cancelAnimationFrame(focusFrame);
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       document.removeEventListener("keydown", onKeyDown);
       previousFocusRef.current?.focus();
     };
@@ -78,7 +81,7 @@ export const Navbar: React.FC = () => {
   useGSAP(
     () => {
       const gsap = ensureGsap();
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)").matches) return;
 
       gsap.from("[data-nav-rail]", {
         yPercent: -100,
@@ -99,7 +102,7 @@ export const Navbar: React.FC = () => {
 
   useGSAP(
     () => {
-      if (!isOpen || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!isOpen || window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)").matches) return;
       const gsap = ensureGsap();
       const timeline = gsap.timeline({ defaults: { ease: "power4.out" } });
 
@@ -137,7 +140,7 @@ export const Navbar: React.FC = () => {
           </button>
 
           <Link href="/" onClick={() => setIsOpen(false)} data-cursor="HOME" className="owlsey-nav-cell owlsey-nav-brand" aria-label="Owlsey home">
-            <Image src="/logos/owlsey_horizontal.svg" alt="Owlsey" width={186} height={44} priority className="owlsey-logo-on-dark h-8 w-auto object-contain lg:h-9" data-nav-logo />
+            <Image src="/logos/owlsey_generated_lockup.svg" alt="Owlsey" width={203} height={59} priority className="h-9 w-auto object-contain lg:h-10" data-nav-logo />
           </Link>
 
         </div>
@@ -152,7 +155,7 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="owlsey-nav-overlay-label" data-overlay-cell>Navigation / 05</div>
           <Link href="/" onClick={() => setIsOpen(false)} tabIndex={isOpen ? 0 : -1} className="owlsey-nav-overlay-brand" aria-label="Owlsey home">
-            <Image src="/logos/owlsey_horizontal.svg" alt="Owlsey" width={186} height={44} className="owlsey-logo-on-dark h-8 w-auto object-contain lg:h-9" />
+            <Image src="/logos/owlsey_generated_lockup.svg" alt="Owlsey" width={203} height={59} className="h-9 w-auto object-contain lg:h-10" />
           </Link>
           <button ref={closeButtonRef} type="button" onClick={() => setIsOpen(false)} tabIndex={isOpen ? 0 : -1} className="owlsey-nav-close" aria-label="Close navigation">
             <X className="h-5 w-5" />

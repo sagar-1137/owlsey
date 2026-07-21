@@ -33,7 +33,7 @@ export const StatsBar: React.FC = () => {
 
   useEffect(() => {
     const root = sectionRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)").matches) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
@@ -63,9 +63,9 @@ export const StatsBar: React.FC = () => {
 
   return (
     <section ref={sectionRef} className="section-dark chapter-ink" data-chapter="Method" aria-labelledby="operating-system-title">
-      <div className="modular-grid modular-grid--viewport has-complete-junctions">
+      <div className="modular-grid modular-grid--viewport home-method-grid has-complete-junctions">
         <GridJunctions />
-        <div data-operating-cell className="modular-box md:col-span-2 lg:col-span-2 flex flex-col justify-between">
+        <div data-operating-cell className="modular-box home-method-lead md:col-span-2 lg:col-span-2 flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">Delivery model</p>
           <h2 id="operating-system-title" className="modular-display max-w-[9ch] text-[clamp(3.4rem,7vw,7.2rem)] text-[color:var(--text-strong)]">
             Brief
@@ -74,14 +74,14 @@ export const StatsBar: React.FC = () => {
           </h2>
         </div>
 
-        <div data-operating-cell className="modular-box flex flex-col justify-between">
+        <div data-operating-cell className="modular-box home-method-balance flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-faint)]">The balance</p>
           <p className="max-w-[20ch] text-[clamp(1.45rem,2.2vw,2.25rem)] leading-[1.05] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
             Your context. Our <span className="home-serif-accent">judgement</span>.
           </p>
         </div>
 
-        <a href="/experience" data-cursor="PROCESS" data-motion-link data-operating-cell className="modular-box modular-box-dark group flex flex-col justify-between">
+        <a href="/experience" data-cursor="PROCESS" data-motion-link data-operating-cell className="modular-box modular-box-dark home-method-route group flex flex-col justify-between">
           <p className="display-kicker text-white/55">One route</p>
           <div>
             <p className="modular-display text-[clamp(2.8rem,4.8vw,5.2rem)] text-white">
@@ -97,7 +97,7 @@ export const StatsBar: React.FC = () => {
         </a>
 
         {operatingLayers.map((layer) => (
-          <article key={layer.label} data-operating-cell className="modular-box group flex flex-col justify-between transition-colors duration-300 hover:bg-white/[0.075]">
+          <article key={layer.label} data-operating-cell className="modular-box home-method-step group flex flex-col justify-between transition-colors duration-300 hover:bg-white/[0.075]">
             <p className="display-kicker text-[color:var(--text-faint)]">{layer.label}</p>
             <div>
               <h3 className="modular-display max-w-[8ch] text-[clamp(2.35rem,4vw,4.4rem)] text-[color:var(--text-strong)]">

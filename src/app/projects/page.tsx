@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import ProjectsContent from "@/components/page/ProjectsContent";
 
 export const metadata: Metadata = {
-  title: "Projects | Owlsey",
+  title: "Custom Software Projects & Case Studies",
   description:
     "Selected system patterns from Owlsey: operations tools, client portals, integrations, and release frameworks shaped around real requirements.",
+  alternates: { canonical: "https://owlsey.com/projects" },
   keywords: [
     "custom software case studies",
     "internal tools case studies",

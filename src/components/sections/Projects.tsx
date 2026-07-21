@@ -39,9 +39,9 @@ export const Projects: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const gsap = ensureGsap();
     const root = sectionRef.current;
-    if (!root || prefersReducedMotion) return;
+    if (!root || prefersReducedMotion || window.matchMedia("(max-width: 767px), (pointer: coarse)").matches) return;
+    const gsap = ensureGsap();
 
     const ctx = gsap.context(() => {
       // Title reveal animation
@@ -63,74 +63,34 @@ export const Projects: React.FC = () => {
         });
       }
 
-      // Card entrance animations with alternating directions
+      // Scroll-linked editorial staging. The rows share one motion grammar so
+      // the composition feels continuous instead of flying in from arbitrary
+      // directions.
       const rows = root.querySelectorAll<HTMLElement>("[data-project-row]");
       rows.forEach((row, idx) => {
-        const children = Array.from(row.children);
-        
-        // Determine if desktop for more complex animations
-        const isDesktop = window.innerWidth >= MOTION_CONFIG.breakpoints.desktop;
-
-        if (isDesktop && idx === 0) {
-          // Card 0: Enter from left
-          gsap.from(row, {
-            xPercent: -8,
-            opacity: 0,
-            duration: MOTION_CONFIG.timing.primaryReveal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scale: 0.97,
+        gsap.fromTo(
+          row,
+          {
+            y: 58 + idx * 8,
+            opacity: 0.24,
+            scale: 0.985,
+            clipPath: "inset(12% 0 0 0)",
+          },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            clipPath: "inset(0% 0 0 0)",
+            ease: "none",
             scrollTrigger: {
               trigger: row,
-              start: "top 80%",
+              start: "top 94%",
+              end: "top 56%",
+              scrub: 0.7,
               markers: MOTION_CONFIG.debug,
-              once: true,
             },
-          });
-        } else if (isDesktop && idx === 1) {
-          // Card 1: Enter from bottom
-          gsap.from(row, {
-            yPercent: 70,
-            opacity: 0,
-            scale: 0.97,
-            duration: MOTION_CONFIG.timing.primaryReveal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scrollTrigger: {
-              trigger: row,
-              start: "top 80%",
-              markers: MOTION_CONFIG.debug,
-              once: true,
-            },
-          });
-        } else if (isDesktop && idx === 2) {
-          // Card 2: Enter from right
-          gsap.from(row, {
-            xPercent: 8,
-            opacity: 0,
-            scale: 0.97,
-            duration: MOTION_CONFIG.timing.primaryReveal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scrollTrigger: {
-              trigger: row,
-              start: "top 80%",
-              markers: MOTION_CONFIG.debug,
-              once: true,
-            },
-          });
-        } else {
-          // Fallback for mobile or unspecified indices
-          gsap.from(row, {
-            yPercent: 45,
-            opacity: 0,
-            duration: MOTION_CONFIG.timing.supportingReveal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scrollTrigger: {
-              trigger: row,
-              start: "top 85%",
-              markers: MOTION_CONFIG.debug,
-              once: true,
-            },
-          });
-        }
+          },
+        );
       });
 
       // Divider lines animation
@@ -166,9 +126,9 @@ export const Projects: React.FC = () => {
       className="chapter-graphite"
       data-chapter="Solutions"
     >
-      <div className="modular-grid modular-grid--viewport has-complete-junctions">
+      <div className="modular-grid modular-grid--viewport home-solutions-grid has-complete-junctions">
         <GridJunctions />
-        <div className="modular-box md:col-span-2 lg:col-span-2 flex flex-col justify-between">
+        <div className="modular-box home-solutions-lead md:col-span-2 lg:col-span-2 flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">What we build</p>
           <div>
             <h2 className="modular-display text-[clamp(3.4rem,7vw,7rem)] text-[color:var(--text-strong)]">
@@ -178,7 +138,7 @@ export const Projects: React.FC = () => {
             </h2>
           </div>
         </div>
-        <div className="modular-box flex flex-col justify-between">
+        <div className="modular-box home-solutions-note flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-faint)]">Custom by default</p>
           <p className="max-w-[20ch] text-[clamp(1.4rem,2.1vw,2.15rem)] leading-[1.08] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
             Requirement-led. <span className="home-serif-accent">Not packaged</span>.
@@ -188,7 +148,7 @@ export const Projects: React.FC = () => {
           href="/services"
           data-cursor="VIEW"
           data-motion-link
-          className="modular-box group flex flex-col justify-between transition-colors duration-300 hover:bg-white/[0.075]"
+          className="modular-box home-solutions-cta group flex flex-col justify-between transition-colors duration-300 hover:bg-white/[0.075]"
         >
           <span className="display-kicker text-[color:var(--text-faint)]">Explore</span>
           <div>

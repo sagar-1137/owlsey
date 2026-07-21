@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
+  ChevronDown,
   Clock,
   Crosshair,
   FileText,
@@ -17,9 +18,7 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { MotionLayer } from "@/components/common/MotionLayer";
-import { SmoothScroll } from "@/components/common/SmoothScroll";
-import { ensureGsap } from "@/lib/gsap";
+import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { GridJunctions } from "@/components/common/GridJunctions";
 
 const PROJECT_TYPES = [
@@ -47,55 +46,52 @@ const USEFUL_BRIEF = [
 ];
 
 export default function ContactContent() {
-  const pageRef = useRef<HTMLDivElement>(null);
   const [contextLength, setContextLength] = useState(0);
+  const [projectType, setProjectType] = useState("");
+  const [directionOpen, setDirectionOpen] = useState(false);
+  const [directionError, setDirectionError] = useState(false);
+  const directionRef = useRef<HTMLDivElement>(null);
+  const directionButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const root = pageRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (!directionRef.current?.contains(event.target as Node)) setDirectionOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDirectionOpen(false);
+    };
 
-    const gsap = ensureGsap();
-    const cells = root.querySelectorAll<HTMLElement>("[data-contact-cell]");
-    const content = Array.from(cells).flatMap((cell) => Array.from(cell.children));
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        content,
-        { opacity: 0, y: 12, filter: "blur(2px)" },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.7,
-          stagger: 0.03,
-          ease: "power4.out",
-          clearProps: "transform,filter",
-          delay: 0.1,
-        }
-      );
-    }, root);
-
-    return () => ctx.revert();
+    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!projectType) {
+      setDirectionError(true);
+      directionButtonRef.current?.focus();
+      return;
+    }
     const form = new FormData(event.currentTarget);
     const name = String(form.get("name") ?? "");
     const email = String(form.get("email") ?? "");
-    const projectType = String(form.get("projectType") ?? "Not specified");
+    const submittedProjectType = String(form.get("projectType") ?? "Not specified");
     const context = String(form.get("context") ?? "");
     const subject = encodeURIComponent(`Project enquiry from ${name}`);
     const body = encodeURIComponent(
-      [`Name: ${name}`, `Email: ${email}`, `Direction: ${projectType}`, "", "Context:", context].join("\n")
+      [`Name: ${name}`, `Email: ${email}`, `Direction: ${submittedProjectType}`, "", "Context:", context].join("\n")
     );
 
     window.location.href = `mailto:hello@owlsey.com?subject=${subject}&body=${body}`;
   };
 
   return (
-    <div ref={pageRef} className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">
-      <SmoothScroll />
-      <MotionLayer />
+    <div className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">
+      <DeferredEnhancements />
       <div className="modular-shell palette-white w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>
@@ -182,35 +178,70 @@ export default function ContactContent() {
                 <div className="contact-form-fields contact-form-fields--boxed">
                   <label className="contact-compact-field">
                     <span>Name *</span>
-                    <input name="name" type="text" autoComplete="name" placeholder="Your name" required />
+                    <input name="name" type="text" autoComplete="name" placeholder="Your name" maxLength={80} required />
                   </label>
                   <label className="contact-compact-field">
                     <span>Work email *</span>
-                    <input name="email" type="email" autoComplete="email" placeholder="name@company.com" required />
+                    <input name="email" type="email" autoComplete="email" placeholder="name@company.com" maxLength={160} required />
                   </label>
-                  <label className="contact-compact-field contact-compact-field--wide">
-                    <span>Direction *</span>
-                    <select name="projectType" defaultValue="" required>
-                      <option value="" disabled>Select what is closest</option>
-                      {PROJECT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-                    </select>
-                  </label>
+                  <div className="contact-compact-field contact-compact-field--wide">
+                    <span id="contact-direction-label">Direction *</span>
+                    <div ref={directionRef} className={`contact-custom-select ${directionOpen ? "is-open" : ""}`}>
+                      <input type="hidden" name="projectType" value={projectType} />
+                      <button
+                        ref={directionButtonRef}
+                        type="button"
+                        role="combobox"
+                        className="contact-custom-select-trigger"
+                        aria-labelledby="contact-direction-label contact-direction-value"
+                        aria-haspopup="listbox"
+                        aria-controls="contact-direction-options"
+                        aria-expanded={directionOpen}
+                        aria-invalid={directionError}
+                        onClick={() => setDirectionOpen((open) => !open)}
+                      >
+                        <span id="contact-direction-value" className={projectType ? "" : "is-placeholder"}>
+                          {projectType || "Select what is closest"}
+                        </span>
+                        <span className="contact-custom-select-arrow" aria-hidden="true">
+                          <ChevronDown className="h-4 w-4" strokeWidth={1.5} />
+                        </span>
+                      </button>
+                      {directionOpen && (
+                        <div id="contact-direction-options" className="contact-custom-select-menu" role="listbox" aria-labelledby="contact-direction-label">
+                          {PROJECT_TYPES.map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              role="option"
+                              aria-selected={projectType === type}
+                              onClick={() => {
+                                setProjectType(type);
+                                setDirectionError(false);
+                                setDirectionOpen(false);
+                                directionButtonRef.current?.focus();
+                              }}
+                            >
+                              <span>{type}</span>
+                              {projectType === type && <Check className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {directionError && <small className="contact-field-error">Select a project direction.</small>}
+                  </div>
                   <label className="contact-compact-field contact-compact-field--wide contact-compact-message">
                     <span>Context *</span>
                     <span className="contact-message-wrap">
-                      <textarea name="context" maxLength={500} onChange={(event) => setContextLength(event.target.value.length)} placeholder="What should the software improve, replace, connect, or make possible?" required />
-                      <span className="contact-character-count">{contextLength} / 500</span>
+                      <textarea id="contact-context" name="context" minLength={20} maxLength={500} aria-describedby="contact-context-count" onChange={(event) => setContextLength(event.target.value.length)} placeholder="What should the software improve, replace, connect, or make possible?" required />
+                      <span id="contact-context-count" className="contact-character-count">{contextLength} / 500</span>
                     </span>
                   </label>
                 </div>
                 <div className="contact-form-actions">
-                  <label className="contact-file-action" data-cursor="ATTACH">
-                    <span className="contact-file-icon"><Paperclip className="h-4 w-4" strokeWidth={1.5} /></span>
-                    <span><strong>Add files (optional)</strong><small>PDF, images, docs</small></span>
-                    <input name="attachment" type="file" accept=".pdf,.doc,.docx,image/*" multiple />
-                  </label>
                   <button type="submit" data-cursor="SEND" className="contact-form-submit group">
-                    <span>Send brief</span>
+                    <span>Open email draft</span>
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
                 </div>

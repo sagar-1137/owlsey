@@ -3,14 +3,9 @@
 import React, { useRef } from "react";
 import { ensureGsap, useGSAP } from "@/lib/gsap";
 
-/** Owl-01 mark path — shared by the stroke-draw and fill layers. */
-const OWL_PATH =
-  "M649.8,383.25c-19.68-24.49-47.27-41.89-77.68-48.99-10.48-2.44-21.29-3.68-32.13-3.68-1.01,0-2.02,0-3.02.03-36.96.77-71.59,15.77-97.51,42.2-25.95,26.47-40.24,61.47-40.24,98.54,0,33.63,12.05,66.19,33.93,91.67,19.86,23.13,46.66,39.19,76.16,45.75,2.64.59,5.31,1.1,7.99,1.54,3.71.6,7.48,1.06,11.28,1.36,2.76.22,5.54.36,8.32.43h.07c1.01.02,2.01.03,3.02.03.3,0,.82,0,1.46,0,1.18,0,2.83,0,4.54,0v-15.76h.02v-2.29h.02l.04-49.73c.02-16.99,6.89-32.79,18.24-45.04,2.76-2.7,5.65-5.04,8.67-7.14,4.38-3.04,9.07-5.56,14.07-7.9,4.42-2.05,8.15-4.99,11.61-8.79.04-.05.12-.05.16,0,19.38,20.66,20.74,51.63,9.63,76.86-2.49,5.64-5.32,10.99-8.51,16.07-3.81,6.08-8.14,11.78-13.03,17.13-.02.02-.04.05-.06.07-3.73,4.23-7.24,7.61-10.45,10.31-.74.63-1.47,1.22-2.19,1.78-3.86,3.03-8.16,5.46-12.74,7.24l-4.59,1.79c.94.2,1.89.35,2.84.49,1,.13,1.99.23,3,.3,9.52.63,19.23-1.71,27.02-4.44.08-.03.16-.06.24-.08,8.25-2.94,14.31-6.31,15.63-7.07.04-.02.08-.05.12-.07.04-.02.07-.03.1-.05.04-.02.06-.03.06-.03,16.84-8.94,31.87-21.28,43.93-36.29,19.97-24.86,30.97-56.16,30.97-88.12s-11-63.25-30.97-88.11ZM536.78,603.55c-6.1-.14-12.2-.71-18.11-1.67-1.71-.27-3.4-.59-5.09-.93-.02,0-.03,0-.05-.02-9.3-7.64-17.72-16.22-25.2-25.77-16.5-21.04-25.93-48.9-17.93-75.13,2.87-9.44,7.43-17.87,14.46-25.05.04-.04.12-.04.16,0,7.98,8.85,13.1,9.16,22.63,15.21,18.06,10.35,29.15,33.14,29.17,53.49l.08,59.76c0,.07-.05.11-.11.11ZM595.62,463.93c-3.22,6.35-9.14,10.65-15.58,13.56-2.44,1.1-4.79,2.32-7.05,3.63-14.6,8.5-25.54,21.44-31.26,37.68-.03.09-.16.08-.19,0-1.41-3.78-2.95-7.23-4.63-10.41-7.99-15.1-19.26-23.97-35.67-32.15-17.88-8.97-19.53-30.9-9.28-45.45.03-.05.1-.06.15-.02l12.04,9.24s.05.08.02.13c-4.01,6.96-2.69,15.36,2.87,20.49,5.99,5.53,14.41,5.88,21.67.91.05-.03.12-.02.15.02l8.04,12.29,4.98,7.61c.04.06.13.06.17,0l13.34-20.03s.09-.06.14-.02c5.54,4.06,11.99,4.76,17.45,2.17,1.2-.58,2.37-1.31,3.45-2.2,6.11-5.03,7.74-13.47,3.88-21.19-.02-.05,0-.1.03-.13l11.93-9.17s.12-.02.15.02c6.86,9.54,8.62,22.35,3.2,33.02ZM511.05,444.86c.03-.06.12-.07.16-.03l11.71,10.28s.05.12,0,.16c-3.02,2.77-7.32,1.99-9.96-.08-3.06-2.41-4.06-6.32-1.92-10.32ZM561.46,455.14l11.51-9.86.42-.36c1.85,2.73,1.37,5.98-.42,8.46-.36.5-.78.97-1.24,1.4-2.52,2.34-6.39,3.26-10.26.53-.05-.04-.06-.12,0-.16ZM588.36,422.23c-5.32,4.54-10.38,8.25-15.39,11.95-6.03,4.46-11.99,8.9-18.21,14.8-4.99,4.72-8.71,10.21-12.79,16.01-.05.06-.14.06-.17,0-1.56-2.55-3.19-5-4.91-7.35-3.86-5.24-8.2-9.93-13.42-13.9l-19.07-14.54c-10.82-8.25-19.66-15.34-19.96-30.81,0-.09.12-.14.18-.08,7.42,6.98,14.35,13.16,22.55,18.63.04.02.1.02.13-.02,2.93-2.88,5.84-5.05,9.94-6.25,6.43-1.86,13.02-2.99,19.65-3.37,9.86-.59,19.8.47,29.39,3.14,2.5.7,4.66,1.68,6.69,2.94,1.52.95,2.96,2.04,4.4,3.3.04.03.09.03.13,0,8.05-5.62,15.35-11.37,22.1-18.46.07-.07.18-.02.18.07.06,9.49-4.37,17.91-11.43,23.94ZM643.13,554.11c-13.55,16.85-31.09,30.14-50.73,38.65,1.1-1.1,2.06-2.13,2.86-3.02.02-.03.04-.05.06-.07.82-.96,1.63-1.91,2.43-2.87.08-.1.16-.21.25-.31.87-1.05,1.72-2.11,2.55-3.18.7-.89,1.38-1.79,2.05-2.69,3.73-5.03,7.1-10.33,10.05-16.01,8.69-16.18,13.14-33.7,11.73-51.99-1.52-17-8.02-32.55-20.04-44.9-.02-.02-.03-.07-.02-.11,6.2-14.41,3.86-30.41-5.04-43.37-.02-.03-.02-.08,0-.12,6.06-6.76,9.06-14.91,9.76-23.88.34-7.71-.49-14.91-2.9-22.7-.02-.07-.12-.1-.17-.04l-8.4,9.29c-5.99,6.63-12.13,12.82-19.29,18.4-.03.02-.07.02-.11,0-1.66-.8-3.4-1.52-5.2-2.2-10.67-3.97-23.55-5.69-36.08-5.06-11.09.57-21.92,2.99-30.7,7.34-.04.02-.08.02-.12,0-6.26-4.8-11.95-10.1-17.17-15.98l-10.42-11.7c-.05-.06-.15-.04-.17.04-2.4,7.41-3.43,14.65-2.96,22.07.63,9.17,3.67,17.43,9.72,24.49.03.04.03.09,0,.12-8.77,12.49-11.18,28.54-5.44,42.72,0,.03,0,.08-.02.11-21.35,20.65-25.92,52.1-16.89,79.46,6.88,20.44,16.86,33.91,30.79,48.34.08.07,0,.21-.11.17-20.64-7.77-39.2-20.69-53.78-37.68-20.55-23.92-31.86-54.5-31.86-86.09,0-34.82,13.43-67.69,37.8-92.55,24.35-24.83,56.87-38.91,91.6-39.63.94-.02,1.87-.03,2.82-.03,10.19,0,20.33,1.16,30.18,3.46,28.56,6.67,54.47,23,72.95,46.01,19.03,23.69,29.08,52.3,29.08,82.74s-10.05,59.07-29.08,82.75Z";
-
 /**
  * Minimal hero composition built around the Owlsey owl emblem.
- * The owl performs a "signature" reveal: its outline draws itself on, then the
- * solid fill fades in — set against a slow ambient ring + pulse.
+ * The approved simplified emblem settles into a slow ambient ring + pulse.
  */
 export const OwlseyMainGraphic: React.FC = () => {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -45,37 +40,29 @@ export const OwlseyMainGraphic: React.FC = () => {
       });
 
       // --- Signature reveal ---
-      const strokePath = root.querySelector<SVGPathElement>("[data-owl-stroke]");
-      const fillPath = root.querySelector<SVGPathElement>("[data-owl-fill]");
+      const mark = root.querySelector<SVGImageElement>("[data-owl-mark]");
       const emblem = root.querySelector<HTMLElement>("[data-emblem]");
-      if (!strokePath || !fillPath || !emblem) return;
-
-      // Prime the stroke so it starts fully "undrawn".
-      const len = strokePath.getTotalLength();
-      gsap.set(strokePath, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
-      gsap.set(fillPath, { opacity: 0 });
+      if (!mark || !emblem) return;
 
       const tl = gsap.timeline({ delay: 0.15 });
 
-      // Emblem group enters slightly scaled-up and soft, settling crisp.
-      tl.from(emblem, {
+      tl.from("[data-draw-ring]", {
+        drawSVG: "0%",
+        duration: 1.35,
+        stagger: 0.16,
+        ease: "power3.inOut",
+      }).from(emblem, {
         scale: 1.08,
         filter: "blur(6px)",
-        autoAlpha: 0,
         transformOrigin: "50% 50%",
         duration: 0.9,
         ease: "power3.out",
-      })
-        // Outline draws itself on.
-        .to(
-          strokePath,
-          { strokeDashoffset: 0, duration: 1.9, ease: "power2.inOut" },
-          "<0.1"
-        )
-        // Solid fill blooms in as the drawing finishes.
-        .to(fillPath, { opacity: 1, duration: 0.7, ease: "power2.out" }, "-=0.55")
-        // Fade the now-redundant outline out so edges stay clean.
-        .to(strokePath, { opacity: 0, duration: 0.5, ease: "power1.out" }, "<0.1");
+      }, "<0.28").fromTo(
+        mark,
+        { opacity: 0, scale: 0.84, filter: "blur(5px)" },
+        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.15, ease: "power4.out" },
+        "<0.08",
+      );
     },
     { scope: rootRef }
   );
@@ -102,23 +89,17 @@ export const OwlseyMainGraphic: React.FC = () => {
       >
         <defs>
           <radialGradient id="hgInner" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--owl-core-start)" stopOpacity="0.24" />
-            <stop offset="60%" stopColor="var(--owl-core-end)" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="var(--owl-core-start)" stopOpacity="0.08" />
+            <stop offset="60%" stopColor="var(--owl-core-end)" stopOpacity="0.025" />
             <stop offset="100%" stopColor="var(--owl-core-end)" stopOpacity="0" />
           </radialGradient>
 
-          <filter id="hgGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
         {/* Pulse wave — single, very slow */}
         <circle
           data-pulse
+          data-draw-ring
           cx="300"
           cy="300"
           r="170"
@@ -130,6 +111,7 @@ export const OwlseyMainGraphic: React.FC = () => {
         {/* Single outer ring — dashed, slow rotation */}
         <g data-ring opacity="0.85">
           <circle
+            data-draw-ring
             cx="300"
             cy="300"
             r="220"
@@ -144,6 +126,7 @@ export const OwlseyMainGraphic: React.FC = () => {
 
         {/* Inner thin ring around the emblem */}
         <circle
+          data-draw-ring
           cx="300"
           cy="300"
           r="140"
@@ -153,24 +136,18 @@ export const OwlseyMainGraphic: React.FC = () => {
         />
 
         {/* Center: inner glow + owl emblem */}
-        <g data-emblem filter="url(#hgGlow)">
+        <g data-emblem>
           <circle cx="300" cy="300" r="115" fill="url(#hgInner)" />
 
-          {/* Owl mark — from /public/owlsey_emblem.svg (owl-01), sized & centered.
-              Two layered copies: [data-owl-stroke] draws itself on first, then
-              [data-owl-fill] fades in on top for the "signature" reveal. */}
-          <g transform="translate(300 300) scale(0.62) translate(-542 -467)">
-            <path
-              data-owl-stroke
-              d={OWL_PATH}
-              fill="none"
-              stroke="var(--text-strong)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-            <path data-owl-fill d={OWL_PATH} fill="var(--text-strong)" />
-          </g>
+          <image
+            data-owl-mark
+            href="/logos/owlsey_generated_emblem.svg"
+            x="174"
+            y="174"
+            width="252"
+            height="252"
+            preserveAspectRatio="xMidYMid meet"
+          />
         </g>
       </svg>
     </div>

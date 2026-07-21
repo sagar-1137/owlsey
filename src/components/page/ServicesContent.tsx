@@ -16,12 +16,10 @@ import {
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { GridJunctions } from "@/components/common/GridJunctions";
-import { MotionLayer } from "@/components/common/MotionLayer";
-import { ScrollDirector } from "@/components/common/ScrollDirector";
-import { SmoothScroll } from "@/components/common/SmoothScroll";
+import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
-import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
+import { ensureGsap } from "@/lib/gsap";
 
 const SERVICE_TYPES = [
   "Custom platforms",
@@ -77,19 +75,21 @@ export default function ServicesContent() {
 
   useEffect(() => {
     const root = pageRef.current;
-    if (!root || prefersReducedMotion) return;
+    const lightweightDevice = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
+    if (!root || prefersReducedMotion || lightweightDevice) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
       // Main hero grid cells with staggered entrance
       const heroGridCells = root.querySelectorAll<HTMLElement>(".services-hero-grid [data-services-cell]");
+      gsap.set(heroGridCells, { clearProps: "filter" });
       gsap.from(heroGridCells, {
         yPercent: 30,
         opacity: 0,
-        filter: "blur(8px)",
         duration: MOTION_CONFIG.timing.primaryReveal,
         ease: MOTION_CONFIG.easing.revealOutStrong,
         stagger: MOTION_CONFIG.stagger.minimal,
+        clearProps: "transform,opacity,filter",
         scrollTrigger: {
           trigger: ".services-hero-grid",
           start: "top 75%",
@@ -160,20 +160,6 @@ export default function ServicesContent() {
         }
       });
 
-      // CTA buttons hover effect
-      gsap.set("[data-motion-link]", { "--rotate": 0 });
-      gsap.to("[data-motion-link]", {
-        "--rotate": -5,
-        duration: 0.4,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: "[data-motion-link]",
-          start: "top 70%",
-          onEnter: () => {
-            gsap.to("[data-motion-link]", { "--rotate": -5 });
-          },
-        },
-      });
     }, root);
 
     return () => ctx.revert();
@@ -181,9 +167,7 @@ export default function ServicesContent() {
 
   return (
     <div ref={pageRef} className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">
-      <ScrollDirector />
-      <SmoothScroll />
-      <MotionLayer />
+      <DeferredEnhancements />
       <div className="modular-shell palette-white services-shell w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>
@@ -276,7 +260,7 @@ export default function ServicesContent() {
                 </h2>
               </div>
 
-              <div data-services-cell className="modular-box flex flex-col justify-between">
+              <div data-services-cell className="modular-box services-range-note flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-faint)]">Custom by default</p>
                 <p className="max-w-[18ch] text-[clamp(1.4rem,2.1vw,2.15rem)] leading-[1.08] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
                   No forced stack. No fixed package.

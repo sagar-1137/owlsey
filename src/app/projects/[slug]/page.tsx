@@ -21,13 +21,16 @@ export async function generateMetadata({ params }: ProjectCasePageProps): Promis
 
   if (!project) {
     return {
-      title: "Project not found | Owlsey",
+      title: { absolute: "Project not found | Owlsey" },
     };
   }
 
   return {
-    title: `${project.title} | Owlsey Projects`,
+    title: { absolute: `${project.title} | Owlsey Projects` },
     description: project.summary,
+    alternates: {
+      canonical: `https://owlsey.com/projects/${project.slug}`,
+    },
     openGraph: {
       title: `${project.title} | Owlsey Projects`,
       description: project.summary,
@@ -61,5 +64,64 @@ export default async function ProjectCasePage({ params }: ProjectCasePageProps) 
     notFound();
   }
 
-  return <ProjectDetailContent project={project} />;
+  const projectUrl = `https://owlsey.com/projects/${project.slug}`;
+
+  const caseSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CreativeWork",
+        "@id": `${projectUrl}#case`,
+        name: project.title,
+        headline: project.title,
+        description: project.summary,
+        url: projectUrl,
+        genre: project.label,
+        keywords: project.scope.join(", "),
+        abstract: project.challenge,
+        text: project.body,
+        creator: { "@id": "https://owlsey.com/#organization" },
+        author: { "@id": "https://owlsey.com/#organization" },
+        publisher: { "@id": "https://owlsey.com/#organization" },
+        about: project.system,
+        image: "https://owlsey.com/opengraph-image",
+        inLanguage: "en-US",
+        isPartOf: { "@id": "https://owlsey.com/#website" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${projectUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://owlsey.com",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Projects",
+            item: "https://owlsey.com/projects",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: project.title,
+            item: projectUrl,
+          },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(caseSchema) }}
+      />
+      <ProjectDetailContent project={project} />
+    </>
+  );
 }

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import CookiesContent from "@/components/page/CookiesContent";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | Owlsey",
+  title: "Cookie Policy",
   description:
     "Owlsey's Cookie Policy - Learn how we use cookies and similar technologies to improve your experience on our website.",
+  alternates: { canonical: "https://owlsey.com/cookies" },
   keywords: [
     "cookie policy",
     "cookie usage",

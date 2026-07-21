@@ -1,34 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Geist } from "next/font/google";
-import localFont from "next/font/local";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LoaderWrapper } from "@/components/common/LoaderWrapper";
-import { PageTransitionLoader } from "@/components/common/PageTransitionLoader";
 import { CustomCursor } from "@/components/common/CustomCursor";
+import { SmoothScroll } from "@/components/common/SmoothScroll";
+import { CookieConsent } from "@/components/common/CookieConsent";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
+// Body / UI sans. Headings (EB Garamond), labels (Geist Mono) and the brand
+// display (Bebas Neue) are self-hosted via @font-face in globals.css.
 const geist = Geist({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-geist",
-});
-
-const retrograde = localFont({
-  src: "../../public/fonts/retrograde.woff",
-  display: "swap",
-  variable: "--font-retrograde-local",
-});
-
-const redaction = localFont({
-  src: "../../public/fonts/Redaction-Bold.woff",
-  display: "swap",
-  variable: "--font-redaction-local",
 });
 
 const SITE_URL = "https://owlsey.com";
@@ -36,6 +20,62 @@ const SITE_NAME = "Owlsey";
 const TITLE = "Owlsey | Custom Software & Digital Solutions";
 const DESCRIPTION =
   "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability. Turning your product vision into a production-ready reality.";
+
+/* ── Structured data (JSON-LD) ─────────────────────────────
+   Organization + WebSite entities surface Owlsey as a knowledge
+   graph entity and strengthen AI/LLM citation. */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "ProfessionalService"],
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      alternateName: "Owlsey Software",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        "@id": `${SITE_URL}/#logo`,
+        url: `${SITE_URL}/icons/favicon.svg`,
+        contentUrl: `${SITE_URL}/icons/favicon.svg`,
+        caption: SITE_NAME,
+      },
+      image: { "@id": `${SITE_URL}/#logo` },
+      description: DESCRIPTION,
+      slogan: "Software that fits.",
+      email: "hello@owlsey.com",
+      areaServed: { "@type": "Place", name: "Worldwide" },
+      knowsAbout: [
+        "Custom software development",
+        "Web application development",
+        "Mobile app development",
+        "Internal tools development",
+        "Software integrations",
+        "Product engineering",
+        "React",
+        "Next.js",
+        "Flutter",
+      ],
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        email: "hello@owlsey.com",
+        availableLanguage: ["English"],
+        areaServed: "Worldwide",
+      },
+      sameAs: ["https://twitter.com/owlsey"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en-US",
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -141,7 +181,6 @@ export const viewport: Viewport = {
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -153,9 +192,18 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`js ${inter.variable} ${geist.variable} ${retrograde.variable} ${redaction.variable} bg-background scroll-smooth`}
+      className={`js ${geist.variable} bg-background scroll-smooth`}
     >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem("owlsey:intro-seen")&&!location.search.includes("intro=1"))document.documentElement.classList.add("owlsey-intro-seen")}catch(e){}`,
+          }}
+        />
         {/* JS-disabled fallback: strip the `js` class so GSAP intro hides
             never lock the content out. */}
         <noscript>
@@ -167,10 +215,11 @@ export default function RootLayout({
         className="bg-background text-foreground min-h-screen relative font-sans antialiased"
       >
         <ThemeProvider>
+          <SmoothScroll />
           <LoaderWrapper />
-          <PageTransitionLoader />
           <CustomCursor />
           {children}
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>

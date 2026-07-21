@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { Loader } from "./Loader";
+import { lockScroll } from "./SmoothScroll";
 
 /**
  * Shows the cinematic Loader on first paint, then unmounts it once its exit
@@ -16,9 +17,10 @@ const shouldShowIntro = () => {
 };
 
 export const LoaderWrapper: React.FC = () => {
-  // Keep the server and first client render identical. Session storage is
-  // consulted only after hydration to avoid replacing the page tree.
-  const [show, setShow] = useState(false);
+  // Render the intro on the server and on the first client pass so the page
+  // can never paint before its overlay. A small pre-paint script in the root
+  // layout hides this element when the intro was already seen this session.
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
     const hydrationCheck = window.setTimeout(() => {
@@ -30,21 +32,38 @@ export const LoaderWrapper: React.FC = () => {
 
   const handleDone = useCallback(() => {
     sessionStorage.setItem("owlsey:intro-seen", "1");
+    document.documentElement.classList.add("owlsey-intro-seen");
     document.documentElement.style.overflow = "";
+    lockScroll(false);
     setShow(false);
   }, []);
 
   useEffect(() => {
     if (!show) return;
-    // Lock scroll while the loader is up.
+    // Lock scroll while the loader is up. `overflow` covers native scroll
+    // (mobile / non-Lenis); `lockScroll` pauses Lenis on desktop so its eased
+    // position doesn't drift behind the frozen overlay.
     document.documentElement.style.overflow = "hidden";
+    lockScroll(true);
     // Safety net: never let the intro trap the page. If the exit animation
     // hasn't fired within a hard ceiling (e.g. GSAP paused in a background
     // tab, or an error), force the page to reveal anyway.
     const failsafe = window.setTimeout(handleDone, 6000);
-    return () => window.clearTimeout(failsafe);
+    return () => {
+      window.clearTimeout(failsafe);
+      // Always restore scroll when the overlay goes away. Without this, a
+      // repeat visit that skips the intro (`show` flips to false before the
+      // Loader's exit animation ever calls handleDone) would leave the page
+      // permanently scroll-locked.
+      document.documentElement.style.overflow = "";
+      lockScroll(false);
+    };
   }, [show, handleDone]);
 
   if (!show) return null;
-  return <Loader onDone={handleDone} />;
+  return (
+    <div data-intro-overlay>
+      <Loader onDone={handleDone} />
+    </div>
+  );
 };

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import ContactContent from "@/components/page/ContactContent";
 
 export const metadata: Metadata = {
-  title: "Start a Project | Owlsey",
+  title: "Start a Custom Software Project",
   description:
     "Share your software requirement, product context, or current constraint with Owlsey. We will help shape the right technical route.",
+  alternates: { canonical: "https://owlsey.com/contact" },
   keywords: [
     "contact owlsey",
     "software development contact",

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import ServicesContent from "@/components/page/ServicesContent";
 
 export const metadata: Metadata = {
-  title: "Services | Owlsey",
+  title: "Custom Software Development Services",
   description:
     "Custom platforms, internal tools, integrations, and delivery architecture shaped around your requirements and practical engineering judgement.",
+  alternates: { canonical: "https://owlsey.com/services" },
   keywords: [
     "custom software solutions",
     "custom platforms",
@@ -39,6 +40,85 @@ export const metadata: Metadata = {
   },
 };
 
+const SERVICE_OFFERINGS = [
+  {
+    name: "Custom software development",
+    description:
+      "Bespoke platforms and systems engineered around your requirement, not a reused template.",
+  },
+  {
+    name: "Web application development",
+    description:
+      "Production-grade web applications built with React and Next.js, engineered for scale and reliability.",
+  },
+  {
+    name: "Mobile app development",
+    description:
+      "Native-feeling iOS and Android apps delivered with Flutter from a single codebase.",
+  },
+  {
+    name: "Internal tools development",
+    description:
+      "Operations software, admin systems, and workflow automation that replace scattered manual work.",
+  },
+  {
+    name: "Software integrations",
+    description:
+      "Delivery architecture that connects the tools a business already runs on.",
+  },
+];
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://owlsey.com/services#service",
+      name: "Owlsey — Custom Software Engineering",
+      url: "https://owlsey.com/services",
+      description:
+        "Custom platforms, internal tools, integrations, and delivery architecture shaped around your requirements and practical engineering judgement.",
+      provider: { "@id": "https://owlsey.com/#organization" },
+      areaServed: { "@type": "Place", name: "Worldwide" },
+      serviceType: SERVICE_OFFERINGS.map((s) => s.name),
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Software engineering services",
+        itemListElement: SERVICE_OFFERINGS.map((offering) => ({
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: offering.name,
+            description: offering.description,
+            provider: { "@id": "https://owlsey.com/#organization" },
+          },
+        })),
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://owlsey.com/services#breadcrumb",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://owlsey.com" },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Services",
+          item: "https://owlsey.com/services",
+        },
+      ],
+    },
+  ],
+};
+
 export default function ServicesPage() {
-  return <ServicesContent />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
+      <ServicesContent />
+    </>
+  );
 }

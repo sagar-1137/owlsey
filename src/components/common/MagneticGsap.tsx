@@ -3,12 +3,12 @@
 import React, { useEffect, useRef } from "react";
 import { ensureGsap } from "@/lib/gsap";
 
-type Props = {
+type Props = Omit<React.HTMLAttributes<HTMLElement>, "children" | "onClick"> & {
   children: React.ReactNode;
   className?: string;
   strength?: number;
   href?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLElement>;
   as?: "a" | "button" | "div";
 };
 
@@ -19,6 +19,7 @@ export const MagneticGsap: React.FC<Props> = ({
   href,
   onClick,
   as = "div",
+  ...elementProps
 }) => {
   const ref = useRef<HTMLElement>(null);
 
@@ -56,6 +57,7 @@ export const MagneticGsap: React.FC<Props> = ({
         href={href}
         onClick={onClick}
         className={className}
+        {...elementProps}
       >
         {children}
       </a>
@@ -67,13 +69,14 @@ export const MagneticGsap: React.FC<Props> = ({
         ref={ref as React.RefObject<HTMLButtonElement>}
         onClick={onClick}
         className={className}
+        {...elementProps}
       >
         {children}
       </button>
     );
   }
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} className={className}>
+    <div ref={ref as React.RefObject<HTMLDivElement>} className={className} {...elementProps}>
       {children}
     </div>
   );

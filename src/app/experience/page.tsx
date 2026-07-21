@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import ExperienceContent from "@/components/page/ExperienceContent";
 
 export const metadata: Metadata = {
-  title: "Our Experience | Owlsey",
+  title: "Software Development Process & Experience",
   description:
     "Learn about Owlsey's development process, methodology, and expertise in building scalable custom software solutions.",
+  alternates: { canonical: "https://owlsey.com/experience" },
   keywords: [
     "software development process",
     "agile development methodology",

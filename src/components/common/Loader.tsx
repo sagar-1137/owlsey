@@ -115,12 +115,12 @@ export const Loader: React.FC<LoaderProps> = ({ onDone }) => {
         {/* Logo */}
         <div className="relative" data-loader-logo>
           <Image
-            src="/logos/owlsey_horizontal.svg"
+            src="/logos/owlsey_generated_lockup.svg"
             alt="Owlsey"
-            width={170}
-            height={42}
+            width={254}
+            height={74}
             priority
-            className="h-10 w-auto"
+            className="h-14 w-auto"
           />
         </div>
 

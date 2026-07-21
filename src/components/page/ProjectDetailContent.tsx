@@ -6,9 +6,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, CircleDot, Layers3, 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { GridJunctions } from "@/components/common/GridJunctions";
-import { MotionLayer } from "@/components/common/MotionLayer";
-import { ScrollDirector } from "@/components/common/ScrollDirector";
-import { SmoothScroll } from "@/components/common/SmoothScroll";
+import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import type { ProjectCase } from "@/data/projectCases";
 
@@ -21,7 +19,7 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
 
   useEffect(() => {
     const root = pageRef.current;
-    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)").matches) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
@@ -34,15 +32,14 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
           const content = elements.flatMap((cell) => Array.from(cell.children));
           gsap.fromTo(
             content,
-            { opacity: 0, y: 14, filter: "blur(2px)" },
+            { opacity: 0, y: 14 },
             {
               opacity: 1,
               y: 0,
-              filter: "blur(0px)",
               duration: 0.72,
               stagger: 0.035,
               ease: "power4.out",
-              clearProps: "transform,filter",
+              clearProps: "transform,opacity,filter",
             }
           );
         },
@@ -54,9 +51,7 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
 
   return (
     <div ref={pageRef} className="min-h-screen bg-[#090a0b] text-[color:var(--text-strong)]">
-      <ScrollDirector />
-      <SmoothScroll />
-      <MotionLayer />
+      <DeferredEnhancements />
       <div className="modular-shell palette-white projects-shell w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>

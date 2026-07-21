@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock, Globe, Mail, Target } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Clock, Globe, Mail, Target } from "lucide-react";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
@@ -57,9 +57,17 @@ export const Footer: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
   const year = new Date().getFullYear();
 
+  const handleBackToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  };
+
   useEffect(() => {
     const root = footerRef.current;
-    if (!root || prefersReducedMotion) return;
+    const lightweightDevice = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
+    if (!root || prefersReducedMotion || lightweightDevice) return;
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
@@ -186,6 +194,7 @@ export const Footer: React.FC = () => {
           (child) =>
             !child.classList.contains("footer-glow") &&
             !child.classList.contains("footer-dots") &&
+            !child.classList.contains("pattern") &&
             !child.classList.contains("border-t") &&
             !child.classList.contains("border-b")
         );
@@ -207,6 +216,34 @@ export const Footer: React.FC = () => {
           });
         },
       });
+
+      const closingBrand = root.querySelector<HTMLElement>(".footer-embossed-brand__mark");
+      if (closingBrand) {
+        const settleSkew = gsap.quickTo(closingBrand, "skewX", {
+          duration: 0.35,
+          ease: "power3.out",
+        });
+
+        gsap.fromTo(
+          closingBrand,
+          { yPercent: 5, scale: 0.92, transformOrigin: "center center" },
+          {
+            yPercent: -3,
+            scale: 1.1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: root,
+              start: "top bottom",
+              end: "bottom bottom",
+              scrub: 0.9,
+              onUpdate: (self) => {
+                settleSkew(gsap.utils.clamp(-5, 5, self.getVelocity() / -260));
+              },
+              onScrubComplete: () => settleSkew(0),
+            },
+          },
+        );
+      }
     }, root);
 
     return () => ctx.revert();
@@ -227,17 +264,20 @@ export const Footer: React.FC = () => {
               <br />
               requirement<span className="accent-stop">.</span>
             </h2>
-            <p className="mt-6 max-w-[34ch] border-t border-[color:var(--line-strong)] pt-4 text-sm leading-6 text-[color:var(--text-muted)]">
-              Custom software shaped around your operation, preferred technology, and room to evolve.
+            <p className="mt-6 max-w-[30ch] border-t border-[color:var(--line-strong)] pt-4 text-sm leading-6 text-[color:var(--text-muted)]">
+              Software shaped around your operation, and room to evolve.
             </p>
           </div>
         </div>
 
-        <div data-footer-cell data-motion-static aria-hidden="true" className="modular-box footer-primary footer-breathing" />
+        <div data-footer-cell data-motion-static aria-hidden="true" className="modular-box footer-primary footer-breathing">
+          <div className="footer-embossed-brand">
+            <span className="footer-embossed-brand__mark">OWLSEY</span>
+          </div>
+        </div>
 
         <Link href="/contact" data-cursor="START" data-motion-link data-no-card-motion data-footer-cell className="modular-box footer-primary footer-cta group flex flex-col justify-between">
           <span className="footer-glow" aria-hidden="true" />
-          <span className="footer-dots footer-dots--tr" aria-hidden="true" />
           <div className="flex items-center justify-between">
             <p className="display-kicker text-[color:var(--text-faint)]">Project enquiry</p>
             <span className="display-kicker text-[color:var(--text-dim)]">02 / Start</span>
@@ -259,11 +299,11 @@ export const Footer: React.FC = () => {
 
         <div data-footer-cell className="modular-box footer-directory-cell footer-brand flex flex-col justify-between">
           <Link href="/" data-cursor="HOME" className="inline-flex w-fit transition-opacity hover:opacity-65" aria-label="Owlsey home">
-            <Image src="/logos/owlsey_horizontal.svg" alt="Owlsey" width={154} height={38} className="owlsey-logo-on-dark h-auto w-36" />
+            <Image src="/logos/owlsey_generated_lockup.svg" alt="Owlsey" width={203} height={59} className="h-auto w-44" />
           </Link>
           <div>
-            <p className="max-w-[30ch] text-sm leading-6 text-[color:var(--text-muted)]">
-              We build custom software solutions that help businesses move faster, operate smarter, and scale with confidence.
+            <p className="max-w-[26ch] text-sm leading-6 text-[color:var(--text-muted)]">
+              Custom software for teams that move faster and scale with confidence.
             </p>
             <ul className="footer-socials mt-8 border-t border-[color:var(--line-strong)] pt-6">
               {FOOTER_SOCIALS.map(({ label, href, path }) => (
@@ -286,17 +326,26 @@ export const Footer: React.FC = () => {
 
         <div data-footer-cell className="modular-box footer-directory-cell footer-nav flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-faint)]">Explore</p>
-          <nav className="border-t border-[color:var(--line-strong)]" aria-label="Footer navigation">
-            {FOOTER_LINKS.map((link, index) => (
-              <Link key={link.label} href={link.href} data-cursor="VIEW" data-motion-link className="group flex items-center justify-between border-b border-[color:var(--line-subtle)] py-2.5 text-sm text-[color:var(--text-muted)] transition-colors last:border-b-0 hover:text-[color:var(--text-strong)]">
-                <span className="flex items-center gap-3">
-                  <span className="footer-link-index font-mono text-[8px] tracking-[0.16em]">0{index + 1}</span>
-                  <span data-motion-label>{link.label}</span>
-                </span>
-                <ArrowUpRight className="h-3 w-3 opacity-70 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
-              </Link>
-            ))}
-          </nav>
+          <div>
+            <nav className="border-t border-[color:var(--line-strong)]" aria-label="Footer navigation">
+              {FOOTER_LINKS.map((link, index) => (
+                <Link key={link.label} href={link.href} data-cursor="VIEW" data-motion-link className="group flex items-center justify-between border-b border-[color:var(--line-subtle)] py-2.5 text-sm text-[color:var(--text-muted)] transition-colors last:border-b-0 hover:text-[color:var(--text-strong)]">
+                  <span className="flex items-center gap-3">
+                    <span className="footer-link-index font-mono text-[8px] tracking-[0.16em]">0{index + 1}</span>
+                    <span data-motion-label>{link.label}</span>
+                  </span>
+                  <ArrowUpRight className="h-3 w-3 opacity-70 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                </Link>
+              ))}
+            </nav>
+            <div className="footer-nav-legal mt-6 flex items-center gap-6">
+              {FOOTER_LEGAL_LINKS.map((link) => (
+                <Link key={link.label} href={link.href} data-cursor="VIEW" className="display-kicker text-[color:var(--text-faint)] transition-colors hover:text-[color:var(--text-strong)]">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div data-footer-cell className="modular-box footer-directory-cell footer-contact flex flex-col justify-between">
@@ -332,24 +381,13 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div data-footer-cell className="modular-box footer-directory-cell footer-response flex flex-col justify-between">
-          <span className="footer-dots footer-dots--br" aria-hidden="true" />
-          <div className="flex items-center justify-between">
-            <p className="display-kicker text-[color:var(--text-faint)]">Working principle</p>
-            <span className="footer-quote-mark" aria-hidden="true">&ldquo;</span>
-          </div>
-          <p className="footer-response-copy max-w-[16ch] text-[color:var(--text-body)]">
-            A short brief is enough. We usually reply within one business day.
-          </p>
-        </div>
-
-        <div data-footer-cell data-motion-static className="modular-box footer-utility md:col-span-2 lg:col-span-4 flex flex-wrap items-center justify-between gap-4">
+        <div data-footer-cell data-motion-static className="modular-box footer-utility md:col-span-2 lg:col-span-4">
           <span className="flex flex-col gap-0.5">
             <span className="display-kicker text-[color:var(--text-muted)]">© {year} Owlsey</span>
             <span className="text-xs text-[color:var(--text-faint)]">All rights reserved.</span>
           </span>
 
-          <span className="flex items-center gap-3">
+          <span className="footer-utility-location flex items-center gap-3">
             <span className="footer-box-icon" aria-hidden="true">
               <Globe className="h-3.5 w-3.5" strokeWidth={1.5} />
             </span>
@@ -359,20 +397,18 @@ export const Footer: React.FC = () => {
             </span>
           </span>
 
-          <div className="flex items-center gap-5">
-            {FOOTER_LEGAL_LINKS.map((link) => (
-              <Link key={link.label} href={link.href} data-cursor="VIEW" className="display-kicker text-[color:var(--text-faint)] transition-colors hover:text-[color:var(--text-strong)]">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <a href="#home" data-cursor="TOP" className="group flex items-center gap-3 text-[color:var(--text-muted)] transition-colors hover:text-[color:var(--text-strong)]">
+          <button
+            type="button"
+            onClick={handleBackToTop}
+            data-cursor="TOP"
+            className="footer-back-to-top group flex items-center gap-3 text-[color:var(--text-muted)] transition-colors hover:text-[color:var(--text-strong)]"
+            aria-label="Back to top"
+          >
             <span className="display-kicker">Back to top</span>
             <span className="footer-arrow-button footer-arrow-button--sm" aria-hidden="true">
-              <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
+              <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
             </span>
-          </a>
+          </button>
         </div>
       </div>
     </footer>
