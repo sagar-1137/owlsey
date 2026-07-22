@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 
 const operatingLayers = [
@@ -62,9 +62,9 @@ export const StatsBar: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="section-dark chapter-ink" data-chapter="Method" aria-labelledby="operating-system-title">
-      <div className="modular-grid modular-grid--viewport home-method-grid has-complete-junctions">
-        <GridJunctions />
+    <section ref={sectionRef} className="section-dark chapter-ink" data-chapter="Method" data-chapter-target="method" aria-labelledby="operating-system-title">
+      <div className="modular-grid modular-grid--viewport home-method-grid technical-grid-host">
+        <TechnicalGrid className="section-technical-grid" />
         <div data-operating-cell className="modular-box home-method-lead md:col-span-2 lg:col-span-2 flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">Delivery model</p>
           <h2 id="operating-system-title" className="modular-display max-w-[9ch] text-[clamp(3.4rem,7vw,7.2rem)] text-[color:var(--text-strong)]">

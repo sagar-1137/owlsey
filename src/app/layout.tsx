@@ -1,11 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+// Loaded after the legacy base stylesheet because this file intentionally
+// contains the final shared rail/node overrides for every structural grid.
+import "../styles/grid-system.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LoaderWrapper } from "@/components/common/LoaderWrapper";
 import { CustomCursor } from "@/components/common/CustomCursor";
 import { SmoothScroll } from "@/components/common/SmoothScroll";
 import { CookieConsent } from "@/components/common/CookieConsent";
+import { AgentationDevTools } from "@/components/common/AgentationDevTools";
 
 // Body / UI sans. Headings (EB Garamond), labels (Geist Mono) and the brand
 // display (Bebas Neue) are self-hosted via @font-face in globals.css.
@@ -220,6 +224,7 @@ export default function RootLayout({
           <CustomCursor />
           {children}
           <CookieConsent />
+          <AgentationDevTools />
         </ThemeProvider>
       </body>
     </html>

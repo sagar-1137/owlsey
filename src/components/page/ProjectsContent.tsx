@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { PROJECT_CASES } from "@/data/projectCases";
@@ -76,8 +76,8 @@ export default function ProjectsContent() {
         <Navbar />
         <main>
           <section className="chapter-obsidian projects-chapter" data-chapter="Projects" aria-labelledby="projects-title">
-            <div className="modular-grid projects-hero-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid projects-hero-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-projects-cell className="modular-box projects-lead flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -160,8 +160,8 @@ export default function ProjectsContent() {
           </section>
 
           <section className="chapter-steel projects-chapter" data-chapter="Systems" aria-labelledby="selected-systems-title">
-            <div className="modular-grid projects-range-grid modular-grid--viewport has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid projects-range-grid modular-grid--viewport technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-projects-cell className="modular-box projects-range-head md:col-span-2 lg:col-span-2 flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-dim)]">Case patterns</p>

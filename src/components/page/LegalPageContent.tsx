@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, FileText, LockKeyhole, Mail, Scale, ShieldCheck } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ensureGsap } from "@/lib/gsap";
@@ -87,8 +87,8 @@ export function LegalPageContent({
         <Navbar />
         <main>
           <section className="chapter-obsidian legal-chapter" data-chapter={kind === "privacy" ? "Privacy" : "Terms"} aria-labelledby="legal-title">
-            <div className="modular-grid legal-hero-grid modular-grid--viewport has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid legal-hero-grid modular-grid--viewport technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-legal-cell className="modular-box legal-lead md:col-span-2 lg:col-span-2 flex flex-col justify-between">
                 <div className="flex items-center justify-between gap-4">
@@ -156,8 +156,8 @@ export function LegalPageContent({
           </section>
 
           <section className="chapter-steel legal-chapter" data-chapter="Details" aria-labelledby="legal-details-title">
-            <div className="modular-grid modular-grid--viewport legal-clause-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid modular-grid--viewport legal-clause-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-legal-clause className="modular-box legal-clause-intro flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-dim)]">Document details</p>

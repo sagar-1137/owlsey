@@ -6,8 +6,7 @@ import Link from "next/link";
 import { ArrowUp, ArrowUpRight, Clock, Globe, Mail, Target } from "lucide-react";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { MOTION_CONFIG } from "@/lib/motionConfig";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 
 const FOOTER_LINKS = [
   { label: "What we build", href: "/services" },
@@ -71,123 +70,7 @@ export const Footer: React.FC = () => {
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
-      // PHASE 1: Main CTA panel reveal with clip-path
-      const ctaPanel = root.querySelector(".footer-cta") as HTMLElement;
-      if (ctaPanel) {
-        // Animate clip-path inset to reveal panel
-        gsap.from(ctaPanel, {
-          clipPath: "inset(100% 0 0 0)",
-          duration: MOTION_CONFIG.timing.primaryReveal,
-          ease: MOTION_CONFIG.easing.revealOut,
-          scrollTrigger: {
-            trigger: root,
-            start: "top 75%",
-            markers: MOTION_CONFIG.debug,
-            once: true,
-          },
-        });
-
-        // Animate "02 / Start" label first
-        const ctaLabel = ctaPanel.querySelector(".display-kicker:last-of-type");
-        if (ctaLabel) {
-          gsap.from(ctaLabel, {
-            opacity: 0,
-            yPercent: 10,
-            duration: 0.6,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scrollTrigger: {
-              trigger: root,
-              start: "top 70%",
-              once: true,
-            },
-          });
-        }
-
-        // Animate heading next
-        const ctaHeading = ctaPanel.querySelector(".modular-display");
-        if (ctaHeading) {
-          gsap.from(ctaHeading, {
-            yPercent: 20,
-            opacity: 0,
-            duration: MOTION_CONFIG.timing.primaryReveal,
-            ease: MOTION_CONFIG.easing.revealOutStrong,
-            scrollTrigger: {
-              trigger: root,
-              start: "top 65%",
-              once: true,
-            },
-          });
-        }
-
-        // Animate rule and button last
-        const ctaRule = ctaPanel.querySelector(".footer-cta-rule");
-        if (ctaRule) {
-          gsap.from(ctaRule, {
-            opacity: 0,
-            yPercent: 15,
-            duration: MOTION_CONFIG.timing.supportingReveal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            scrollTrigger: {
-              trigger: root,
-              start: "top 60%",
-              once: true,
-            },
-          });
-        }
-      }
-
-      // PHASE 2: Footer navigation rows stagger
-      const navLinks = root.querySelectorAll(".footer-nav a");
-      if (navLinks.length > 0) {
-        gsap.from(navLinks, {
-          opacity: 0,
-          xPercent: -8,
-          duration: MOTION_CONFIG.timing.supportingReveal,
-          ease: MOTION_CONFIG.easing.revealOut,
-          stagger: MOTION_CONFIG.stagger.minimal,
-          scrollTrigger: {
-            trigger: root,
-            start: "top 70%",
-            markers: MOTION_CONFIG.debug,
-            once: true,
-          },
-        });
-
-        // Animate indices before labels
-        const indices = root.querySelectorAll(".footer-link-index");
-        if (indices.length > 0) {
-          gsap.from(indices, {
-            opacity: 0,
-            duration: 0.5,
-            ease: MOTION_CONFIG.easing.revealOut,
-            stagger: MOTION_CONFIG.stagger.minimal,
-            scrollTrigger: {
-              trigger: root,
-              start: "top 72%",
-              once: true,
-            },
-          });
-        }
-      }
-
-      // PHASE 3: Divider lines animation
-      const dividerLines = root.querySelectorAll("[data-footer-cell] .border-t, [data-footer-cell] .border-b");
-      if (dividerLines.length > 0) {
-        gsap.from(dividerLines, {
-          scaleX: 0,
-          transformOrigin: "left",
-          duration: MOTION_CONFIG.timing.supportingReveal,
-          ease: MOTION_CONFIG.easing.revealOut,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: root,
-            start: "top 65%",
-            markers: MOTION_CONFIG.debug,
-          },
-        });
-      }
-
-      // PHASE 4: General cell reveals (fallback for remaining cells)
+      // Fast snappy reveal for footer content
       const cells = root.querySelectorAll<HTMLElement>("[data-footer-cell]:not([data-motion-static])");
       const revealable = (cell: Element) =>
         Array.from(cell.children).filter(
@@ -199,20 +82,21 @@ export const Footer: React.FC = () => {
             !child.classList.contains("border-b")
         );
       const content = Array.from(cells).flatMap(revealable);
-      gsap.set(content, { opacity: 0, y: 16, filter: "blur(2px)" });
+      
+      gsap.set(content, { opacity: 0, y: 10 });
+
       ScrollTrigger.batch(cells, {
-        start: "top 85%",
+        start: "top 95%",
         once: true,
         onEnter: (elements) => {
           const targets = elements.flatMap(revealable);
           gsap.to(targets, {
             opacity: 1,
             y: 0,
-            filter: "blur(0px)",
-            duration: MOTION_CONFIG.timing.supportingReveal,
-            stagger: MOTION_CONFIG.stagger.minimal,
-            ease: MOTION_CONFIG.easing.revealOut,
-            clearProps: "transform,filter",
+            duration: 0.35,
+            stagger: 0.03,
+            ease: "power2.out",
+            clearProps: "transform,opacity",
           });
         },
       });
@@ -251,8 +135,8 @@ export const Footer: React.FC = () => {
 
   return (
     <footer ref={footerRef} id="contact" className="chapter-obsidian relative w-full" data-chapter="Contact" aria-labelledby="footer-title">
-      <div className="modular-grid footer-grid has-complete-junctions">
-        <GridJunctions />
+      <div className="modular-grid footer-grid footer-grid--technical">
+        <TechnicalGrid className="footer-technical-grid" />
         <div data-footer-cell className="modular-box footer-primary footer-lead flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">01 / Align</p>
           <div>
@@ -311,7 +195,6 @@ export const Footer: React.FC = () => {
                   <a
                     href={href}
                     aria-label={label}
-                    data-cursor="VIEW"
                     {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer noopener" } : {})}
                   >
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -329,18 +212,26 @@ export const Footer: React.FC = () => {
           <div>
             <nav className="border-t border-[color:var(--line-strong)]" aria-label="Footer navigation">
               {FOOTER_LINKS.map((link, index) => (
-                <Link key={link.label} href={link.href} data-cursor="VIEW" data-motion-link className="group flex items-center justify-between border-b border-[color:var(--line-subtle)] py-2.5 text-sm text-[color:var(--text-muted)] transition-colors last:border-b-0 hover:text-[color:var(--text-strong)]">
-                  <span className="flex items-center gap-3">
-                    <span className="footer-link-index font-mono text-[8px] tracking-[0.16em]">0{index + 1}</span>
-                    <span data-motion-label>{link.label}</span>
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="group flex items-center justify-between border-b border-[color:var(--line-subtle)] py-3 text-sm text-[color:var(--text-muted)] transition-all duration-300 last:border-b-0 hover:text-white"
+                >
+                  <span className="flex items-center gap-3 transition-transform duration-300 group-hover:translate-x-1.5">
+                    <span className="footer-link-index font-mono text-[9px] tracking-[0.18em] text-[color:var(--accent-primary)] opacity-70 group-hover:opacity-100">
+                      0{index + 1}
+                    </span>
+                    <span className="transition-colors duration-300 group-hover:text-white">
+                      {link.label}
+                    </span>
                   </span>
-                  <ArrowUpRight className="h-3 w-3 opacity-70 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-3.5 w-3.5 opacity-50 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#8f9cff] group-hover:opacity-100" />
                 </Link>
               ))}
             </nav>
             <div className="footer-nav-legal mt-6 flex items-center gap-6">
               {FOOTER_LEGAL_LINKS.map((link) => (
-                <Link key={link.label} href={link.href} data-cursor="VIEW" className="display-kicker text-[color:var(--text-faint)] transition-colors hover:text-[color:var(--text-strong)]">
+                <Link key={link.label} href={link.href} className="display-kicker text-[color:var(--text-faint)] transition-colors hover:text-white">
                   {link.label}
                 </Link>
               ))}

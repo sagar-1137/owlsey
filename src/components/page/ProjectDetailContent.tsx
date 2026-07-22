@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, CircleDot, Layers3, Route, Sparkles } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import type { ProjectCase } from "@/data/projectCases";
@@ -56,8 +56,8 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
         <Navbar />
         <main>
           <section className="chapter-obsidian projects-chapter project-detail-chapter" data-chapter={project.label} aria-labelledby="project-detail-title">
-            <div className="modular-grid project-detail-hero-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid project-detail-hero-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-project-detail-cell className="modular-box project-detail-lead flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -131,8 +131,8 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
           </section>
 
           <section className="chapter-steel projects-chapter project-detail-chapter" data-chapter="Inside" aria-labelledby="project-system-title">
-            <div className="modular-grid project-detail-system-grid modular-grid--viewport has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid project-detail-system-grid modular-grid--viewport technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-project-detail-cell className="modular-box project-detail-system-head md:col-span-2 lg:col-span-2 flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-dim)]">System shape</p>

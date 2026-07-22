@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 
 /* The engagement runs as an ordered arc, so the phases are numbered — the
@@ -56,8 +56,8 @@ export default function ExperienceContent() {
         <main>
           {/* Chapter 1 — the stance */}
           <section className="chapter-obsidian experience-chapter" data-chapter="Experience" aria-labelledby="experience-title">
-            <div className="modular-grid experience-hero-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid experience-hero-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-exp-cell className="modular-box experience-lead flex flex-col justify-between">
                 <span className="pattern pattern--cross pattern--tr" aria-hidden="true" />
@@ -144,8 +144,8 @@ export default function ExperienceContent() {
 
           {/* Chapter 2 — the ordered process */}
           <section className="chapter-steel experience-chapter" data-chapter="Process" aria-labelledby="process-title">
-            <div className="modular-grid experience-phase-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid experience-phase-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" rows={[38]} />
 
               <div data-exp-cell className="modular-box experience-phase-head md:col-span-2 lg:col-span-4 flex flex-col justify-between">
                 <div className="flex items-center justify-between">

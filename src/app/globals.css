@@ -1,9 +1,48 @@
 @import "tailwindcss";
+@import "../styles/loader.css";
 
 /* Applied synchronously in <head> before first paint. It prevents the
    server-rendered intro from flashing on repeat visits in the same tab. */
 html.owlsey-intro-seen [data-intro-overlay] {
   display: none;
+}
+
+/* Homepage choreography starts hidden in CSS so SSR can never flash the
+   completed title, navigation, or hero before GSAP establishes its timeline. */
+html.js .home-intro:not([data-intro-ready="true"]) [data-intro-char] {
+  opacity: 0;
+}
+
+html.js .home-intro:not([data-intro-ready="true"]) [data-intro-scroll] {
+  opacity: 0;
+}
+
+/* Once the typing timeline resolves, make the final word state authoritative.
+   This also recovers cleanly if a browser cancels/reverts an entrance tween
+   during hydration or a font refresh. */
+html.js .home-intro[data-intro-ready="true"] [data-intro-char] {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  filter: blur(0) !important;
+}
+
+html.js body:has(.home-intro) .owlsey-nav-fixed {
+  opacity: 0;
+}
+
+html.js [data-hero-grid] {
+  clip-path: inset(0 100% 0 0);
+}
+
+html.js [data-hero-reveal] {
+  opacity: 0;
+  transform: translateY(54px);
+  clip-path: inset(14% 0 0 0);
+  filter: blur(5px);
+}
+
+html.js [data-hero-locked-title] {
+  opacity: 0;
 }
 
 @font-face {
@@ -85,12 +124,11 @@ html.owlsey-intro-seen [data-intro-overlay] {
   /* Secondary ruling used by the empty continuation cells outside the
      four-column content stage. */
   --gutter-grid-line: rgba(210, 216, 244, 0.09);
-  /* A fixed four-track content stage. Wider displays reveal empty tracks on
-     either side without stretching or breaking the rhythm. */
-  --shell-max: 1600px;
-  --grid-track: calc((var(--shell-max) - (var(--page-frame) * 2)) / 4);
-  --shell-inset: max(0px, (100vw - var(--shell-max)) / 2);
-  --shell-width: min(100vw, var(--shell-max));
+  /* Full-width four-track stage, inset only by the persistent page frame. */
+  --shell-max: 100vw;
+  --grid-track: calc((100vw - (var(--page-frame) * 2)) / 4);
+  --shell-inset: 0px;
+  --shell-width: 100vw;
   --viewport-grid-height: calc(100dvh - (var(--page-frame) * 2));
   --nav-height: 58px;
   --cell-pad: clamp(18px, 1.65vw, 30px);
@@ -997,19 +1035,25 @@ html.owlsey-intro-seen [data-intro-overlay] {
 
   .footer-embossed-brand__mark {
     position: relative;
-    color: rgba(143, 156, 255, 0.018);
+    color: rgba(143, 156, 255, 0.012);
     font-family: var(--font-impact);
     font-size: clamp(7rem, 14vw, 14rem);
     font-weight: 700;
     line-height: 1;
-    letter-spacing: 0.035em;
+    letter-spacing: 0.06em;
     white-space: nowrap;
     transform: translate(0, 0.02em);
-    -webkit-text-stroke: 1px rgba(187, 196, 238, 0.13);
+    -webkit-text-stroke: 1px rgba(187, 196, 238, 0.12);
     text-shadow:
-      -1px -1px 0 rgba(222, 227, 245, 0.055),
+      -1px -1px 0 rgba(222, 227, 245, 0.04),
       1px 2px 1px rgba(0, 0, 0, 0.88),
-      0 0 34px rgba(95, 112, 216, 0.11);
+      0 0 40px rgba(95, 112, 216, 0.08);
+    transition: all 0.5s ease;
+  }
+
+  .footer-breathing:hover .footer-embossed-brand__mark {
+    -webkit-text-stroke: 1px rgba(143, 156, 255, 0.35);
+    text-shadow: 0 0 50px rgba(143, 156, 255, 0.25);
   }
 
   .footer-cta {
@@ -1127,10 +1171,6 @@ html.owlsey-intro-seen [data-intro-overlay] {
   .footer-nav {
     min-height: 0;
     gap: 2.25rem;
-  }
-
-  .footer-nav nav a:nth-child(n + 4) {
-    display: none;
   }
 
   .footer-contact {
@@ -3766,6 +3806,7 @@ html.owlsey-intro-seen [data-intro-overlay] {
 }
 
 .owlsey-nav-fixed {
+  z-index: 80;
   top: 0;
   left: 50%;
   width: calc(100% - (var(--page-frame) * 2));
@@ -3841,7 +3882,9 @@ html.owlsey-intro-seen [data-intro-overlay] {
      matte gutter; collapses to the viewport edges below the cap. */
   left: var(--shell-inset);
   right: var(--shell-inset);
-  z-index: 50;
+  /* Above the persistent page-frame overlay: an open menu owns the complete
+     viewport and must not inherit the closed page's perimeter padding. */
+  z-index: 80;
   display: grid;
   grid-template-rows: var(--nav-height) minmax(0, 1fr);
   visibility: hidden;
@@ -4238,6 +4281,623 @@ html.owlsey-intro-seen [data-intro-overlay] {
   }
 }
 
+/* Homepage opening — one statement is typed at viewport scale, then reduced
+   into the same four-column spatial system used by the hero below. */
+.home-intro {
+  position: relative;
+  /* Above the persistent body frame while edge-to-edge; the stage clip then
+     reveals that frame progressively during the scroll handoff. */
+  z-index: 75;
+  width: 100dvw;
+  margin-top: calc(-1 * var(--page-frame));
+  margin-left: calc(-1 * (var(--page-frame) + var(--shell-inset)));
+  /* Tall enough that the sticky stage travels further up than the hero
+     headline sits down the page. Below this, the pinned statement's natural
+     end position lands above the hero slot, so the handoff has to drag the
+     statement *downward* to reach it. Past this threshold the statement rises
+     into the upper hero grid instead — the intended direction. */
+  height: 320svh;
+  background: #070b11;
+}
+
+.home-intro-stage {
+  position: sticky;
+  top: 0;
+  display: grid;
+  width: 100dvw;
+  height: 100dvh;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(104, 120, 206, 0.13), transparent 35%),
+    linear-gradient(145deg, #0a1018, #070b11 66%, #0d1420);
+  will-change: clip-path;
+}
+
+.home-intro-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(220, 226, 255, 0.22) 0.6px, transparent 0.7px);
+  background-size: 7px 7px;
+  mask-image: linear-gradient(to bottom, transparent, black 26%, black 72%, transparent);
+}
+
+/* The hero is pre-positioned beneath the final sticky intro viewport. At the
+   end of the scrub the intro fades, revealing a fully assembled hero instead
+   of spending another viewport sliding the grid and title out of frame. */
+.home-shell > main {
+  margin-top: -100dvh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-shell > main {
+    margin-top: 0;
+  }
+}
+
+.chapter-route-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, transparent calc(25% - 0.5px), var(--line-strong) calc(25% - 0.5px), var(--line-strong) calc(25% + 0.5px), transparent calc(25% + 0.5px)),
+    linear-gradient(90deg, transparent calc(50% - 0.5px), var(--line-strong) calc(50% - 0.5px), var(--line-strong) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(90deg, transparent calc(75% - 0.5px), var(--line-strong) calc(75% - 0.5px), var(--line-strong) calc(75% + 0.5px), transparent calc(75% + 0.5px));
+}
+
+.home-intro-grid {
+  opacity: 0;
+  background-image: none;
+}
+
+.home-intro-title {
+  position: relative;
+  z-index: 2;
+  width: min(92vw, 1540px);
+  color: #f7f8ff;
+  font-family: var(--font-impact);
+  font-size: clamp(4.4rem, 10.2vw, 12.5rem);
+  font-weight: 700;
+  line-height: 0.78;
+  letter-spacing: -0.064em;
+  text-align: center;
+  text-transform: uppercase;
+  will-change: transform, opacity, filter;
+}
+
+.home-intro-line {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.home-intro-char {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+
+.home-intro-line:last-child {
+  color: var(--accent-strong);
+  text-shadow: 0 0 34px rgba(95, 112, 216, 0.2);
+}
+
+.home-intro-scroll {
+  position: absolute;
+  bottom: clamp(1.75rem, 4vw, 3.5rem);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  transform: translateX(-50%);
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.home-intro-scroll-line {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, var(--accent-strong), transparent);
+}
+
+.home-intro-scroll-mouse {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 24px;
+  margin-bottom: -0.35rem;
+  color: rgba(220, 226, 255, 0.72);
+  animation: intro-scroll-nudge 720ms cubic-bezier(0.22, 1, 0.36, 1) 3;
+}
+
+.home-intro:not([data-intro-ready="true"]) .home-intro-scroll-mouse {
+  animation-play-state: paused;
+}
+
+.home-intro-scroll-mouse svg {
+  width: 14px;
+  height: 18px;
+  stroke-width: 1.25;
+}
+
+@keyframes intro-scroll-nudge {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-intro-scroll-mouse {
+    animation: none;
+  }
+}
+
+/* Major chapter boundaries deliberately own more scroll distance than normal
+   sections. The stage remains fixed while title and criteria resolve. */
+.chapter-route {
+  position: relative;
+  z-index: 2;
+  height: 270svh;
+  background: #070b11;
+}
+
+.chapter-route--graphite {
+  background: #0d131c;
+}
+
+.chapter-route-stage {
+  position: sticky;
+  top: var(--page-frame);
+  display: grid;
+  height: var(--viewport-grid-height);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  padding: 0;
+  background:
+    radial-gradient(circle at 76% 22%, rgba(95, 112, 216, 0.11), transparent 32%),
+    linear-gradient(145deg, #080d14, #070b11 64%, #0c1421);
+  will-change: transform, opacity, filter;
+}
+
+.chapter-route--graphite .chapter-route-stage {
+  background:
+    radial-gradient(circle at 18% 78%, rgba(95, 112, 216, 0.12), transparent 34%),
+    linear-gradient(145deg, #0d151f, #080d14 68%, #111a28);
+}
+/* Center layout needs 2 rows: title row + cards row */
+.chapter-route--center .chapter-route-stage {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.chapter-route-hero-left {
+  grid-row: 1;
+  grid-column: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: clamp(4.2rem, 5.8vw, 5.8rem) clamp(1.5rem, 2.5vw, 3rem) clamp(1.5rem, 2vw, 2.5rem) clamp(1.5rem, 2.5vw, 3rem);
+  position: relative;
+  z-index: 5;
+  box-sizing: border-box;
+  will-change: transform;
+}
+
+.chapter-route-eyebrow {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: clamp(0.4rem, 0.8vw, 1rem);
+}
+
+.chapter-route-title {
+  position: relative;
+  z-index: 2;
+  color: var(--text-strong);
+  font-family: var(--font-impact);
+  font-size: clamp(3.2rem, 6.8vw, 8.2rem);
+  font-weight: 700;
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.chapter-route-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: clamp(0.6rem, 1.2vw, 1.5rem);
+  font-family: var(--font-label);
+  font-size: clamp(0.72rem, 0.85vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: transform, opacity;
+}
+
+.chapter-route-sub::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background: var(--accent-strong);
+  opacity: 0.7;
+}
+
+.chapter-route-line-mask {
+  display: block;
+  overflow: hidden;
+}
+
+.chapter-route-line-mask > span {
+  display: block;
+  will-change: transform;
+}
+
+.chapter-route-title .chapter-route-line-mask:last-child {
+  color: var(--accent-strong);
+}
+
+.chapter-route-dot {
+  display: inline-block;
+  margin-left: 0.14em;
+  letter-spacing: 0;
+}
+
+.chapter-route-right-grid {
+  grid-row: 1;
+  grid-column: 3 / 5;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  height: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+  padding: 0;
+  position: relative;
+  z-index: 3;
+}
+
+/* Reversed Layout: Title Right, Cards Left. The title sits against the right
+   edge of the frame, so its text is right-aligned to mirror the default
+   layout — where a left-positioned title is left-aligned. Aligning it left
+   here left the text floating against the block's inner edge, reading as
+   misaligned within its own column. */
+.chapter-route--reversed .chapter-route-hero-left {
+  grid-column: 3 / 5;
+  align-items: flex-end;
+  text-align: right;
+  padding: clamp(4.2rem, 5.8vw, 5.8rem) clamp(1.8rem, 3vw, 3.5rem) clamp(1.5rem, 2vw, 2.5rem) clamp(1.8rem, 3vw, 3.5rem);
+}
+
+.chapter-route--reversed .chapter-route-right-grid {
+  grid-column: 1 / 3;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  padding: 0;
+}
+
+/* Center Layout: Title full-width top (row 1), 4 cards horizontal bottom (row 2) */
+.chapter-route--center .chapter-route-hero-left {
+  grid-row: 1 !important;
+  grid-column: 1 / 5;
+  align-items: center;
+  text-align: center;
+  padding: clamp(3.8rem, 5.2vw, 5.5rem) clamp(1.5rem, 3vw, 3.5rem) clamp(0.5rem, 1vw, 1.2rem) clamp(1.5rem, 3vw, 3.5rem);
+}
+
+.chapter-route--center .chapter-route-right-grid {
+  grid-row: 2 !important;
+  grid-column: 1 / 5;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+  padding: clamp(0.5rem, 1vw, 1.5rem) 0 clamp(1rem, 2vw, 2.2rem) 0;
+}
+
+/* Center: all 4 cards in row 1 across 4 columns */
+.chapter-route--center .chapter-route-card[data-slot="0"] { grid-row: 1 / 2 !important; grid-column: 1 / 2 !important; }
+.chapter-route--center .chapter-route-card[data-slot="1"] { grid-row: 1 / 2 !important; grid-column: 2 / 3 !important; }
+.chapter-route--center .chapter-route-card[data-slot="2"] { grid-row: 1 / 2 !important; grid-column: 3 / 4 !important; }
+.chapter-route--center .chapter-route-card[data-slot="3"] { grid-row: 1 / 2 !important; grid-column: 4 / 5 !important; }
+
+/* Reversed: 2×2 grid slots (left side) */
+.chapter-route--reversed .chapter-route-card[data-slot="0"] { grid-row: 1 / 2 !important; grid-column: 1 / 2 !important; }
+.chapter-route--reversed .chapter-route-card[data-slot="1"] { grid-row: 1 / 2 !important; grid-column: 2 / 3 !important; }
+.chapter-route--reversed .chapter-route-card[data-slot="2"] { grid-row: 2 / 3 !important; grid-column: 1 / 2 !important; }
+.chapter-route--reversed .chapter-route-card[data-slot="3"] { grid-row: 2 / 3 !important; grid-column: 2 / 3 !important; }
+
+.chapter-route-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-self: stretch;
+  /* Bottom padding matches the horizontal padding so the content sits inset by
+     the same amount from every edge it approaches — the card reads as
+     deliberately aligned rather than content dropped against the lower rule.
+     Top can stay looser since content is bottom-anchored and never reaches it. */
+  padding: clamp(1.4rem, 2.2vw, 2.4rem) clamp(1.4rem, 2.2vw, 2.4rem);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  opacity: 0;
+  transform: translateY(24px);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+/* Center layout: horizontal strips — content stays top-anchored */
+.chapter-route--center .chapter-route-card {
+  justify-content: flex-start;
+}
+
+/* Default Left Layout: 2x2 grid slots (right side, cols 3-4) */
+.chapter-route-card[data-slot="0"] {
+  grid-row: 1 / 2 !important;
+  grid-column: 1 / 2 !important;
+}
+
+.chapter-route-card[data-slot="1"] {
+  grid-row: 1 / 2 !important;
+  grid-column: 2 / 3 !important;
+}
+
+.chapter-route-card[data-slot="2"] {
+  grid-row: 2 / 3 !important;
+  grid-column: 1 / 2 !important;
+}
+
+.chapter-route-card[data-slot="3"] {
+  grid-row: 2 / 3 !important;
+  grid-column: 2 / 3 !important;
+}
+
+.chapter-route-card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(0.3rem, 0.6vw, 0.75rem);
+}
+
+.chapter-route-card-graphic {
+  position: absolute;
+  right: clamp(0.5rem, 1.8vw, 2rem);
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+  height: auto;
+  max-width: 140px;
+  max-height: 140px;
+  color: #8f9cff;
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease, transform 0.4s ease, color 0.4s ease;
+  will-change: opacity, transform;
+}
+
+.chapter-route-card:hover .chapter-route-card-graphic {
+  opacity: 0.38;
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.06);
+}
+
+.chapter-route-card-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--accent-strong);
+}
+
+.chapter-route-card-num::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  background: var(--accent-strong);
+  opacity: 0.6;
+}
+
+.chapter-route-card-title {
+  font-family: var(--font-impact, var(--font-label));
+  font-size: clamp(1.15rem, 1.6vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 0 16px rgba(143, 156, 255, 0.22);
+  margin-top: 0.35rem;
+}
+
+.chapter-route-card-desc {
+  font-family: var(--font-body, sans-serif);
+  font-size: clamp(0.76rem, 0.85vw, 0.88rem);
+  line-height: 1.45;
+  color: rgba(220, 226, 255, 0.76);
+  max-width: 34ch;
+  margin-top: 0.4rem;
+}
+
+.chapter-route-point-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.chapter-route-point-num {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  will-change: color;
+}
+
+/* Interactive Tech Stack Grid & Filters */
+
+.tech-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  z-index: 5;
+  position: relative;
+}
+
+.tech-filter-tab {
+  padding: 0.55rem 1.2rem;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(220, 226, 255, 0.65);
+  background: rgba(11, 18, 28, 0.7);
+  border: 1px solid rgba(143, 156, 255, 0.18);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tech-filter-tab:hover {
+  color: #ffffff;
+  border-color: rgba(143, 156, 255, 0.45);
+  background: rgba(95, 112, 216, 0.15);
+}
+
+.tech-filter-tab--active {
+  color: #ffffff;
+  background: rgba(143, 156, 255, 0.2);
+  border-color: #8f9cff;
+  box-shadow: 0 0 16px rgba(143, 156, 255, 0.35);
+}
+
+.tech-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem 1.5rem 2.5rem;
+  position: relative;
+  z-index: 3;
+}
+
+.tech-grid-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 124px;
+  padding: 1.25rem 1.25rem 1rem;
+  background: rgba(11, 18, 28, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(143, 156, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, border-color, opacity;
+}
+
+.tech-grid-card:hover {
+  border-color: rgba(143, 156, 255, 0.6);
+  background: rgba(16, 26, 40, 0.95);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(143, 156, 255, 0.18);
+}
+
+.tech-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.tech-card-badge {
+  font-family: var(--font-label);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent-strong);
+  opacity: 0.8;
+}
+
+.tech-card-type {
+  font-family: var(--font-label);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(220, 226, 255, 0.45);
+}
+
+.tech-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-top: 0.6rem;
+  margin-bottom: 0.6rem;
+  color: #8f9cff;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.tech-grid-card:hover .tech-card-icon {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.tech-card-name {
+  font-family: var(--font-label);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.chapter-route-point-desc {
+  margin-top: 0.5rem;
+  font-family: var(--font-body, sans-serif);
+  font-size: clamp(0.72rem, 0.82vw, 0.82rem);
+  line-height: 1.45;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateY(10px);
+  will-change: transform, opacity;
+}
+
 .longbow-hero-grid {
   position: relative;
   isolation: isolate;
@@ -4245,6 +4905,7 @@ html.owlsey-intro-seen [data-intro-overlay] {
   min-height: var(--viewport-grid-height);
   overflow: hidden;
   border-left: 1px solid var(--line-strong);
+  border-right: 1px solid var(--line-strong);
   border-radius: 0 !important;
   background-clip: border-box;
   background:
@@ -4323,33 +4984,47 @@ html.owlsey-intro-seen [data-intro-overlay] {
   display: none;
 }
 
-.longbow-hero-scan {
-  position: absolute;
-  left: 9%;
-  right: 9%;
-  top: 50%;
-  z-index: 2;
-  height: 1px;
-  transform-origin: 50% 50%;
-  background: linear-gradient(90deg, transparent, rgba(143, 156, 255, 0.18) 18%, rgba(247, 248, 255, 0.78) 50%, rgba(143, 156, 255, 0.18) 82%, transparent);
-  box-shadow: 0 0 28px rgba(143, 156, 255, 0.28);
+/* Destination slot for the opening statement. The intro title is animated onto
+   this box's measured geometry, so the slot must occupy real space even though
+   it renders nothing itself — that both reserves the hero's layout (no reflow
+   when the statement lands) and gives the measurement a non-zero target. */
+.hero-locked-title {
+  text-wrap: balance;
+}
+
+[data-hero-title-slot] {
+  width: 100%;
+  /* Matches the three-line statement at the hero's display size. */
+  aspect-ratio: 1472 / 382;
+  max-height: 3.1em;
+  font-size: clamp(2.6rem, 5.6vw, 5.6rem);
   pointer-events: none;
 }
 
-.longbow-hero-scan::before,
-.longbow-hero-scan::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  border: 1px solid rgba(247, 248, 255, 0.76);
-  background: #111923;
-  transform: translateY(-50%) rotate(45deg);
+.home-intro-heading {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
 }
 
-.longbow-hero-scan::before { left: 22%; }
-.longbow-hero-scan::after { right: 22%; }
+/* Reduced motion never runs the handoff, so the statement stays in the intro
+   stage and the hero renders its own static heading instead of an empty slot.
+   That heading is real markup (see Hero.tsx), not generated content, so it
+   stays selectable and available to assistive tech. */
+.hero-locked-title-static {
+  margin: 0;
+  font-family: var(--font-impact);
+  font-size: clamp(2.6rem, 5.6vw, 5.6rem);
+  font-weight: 700;
+  line-height: 0.79;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.hero-locked-title-static span {
+  color: var(--accent-strong);
+}
 
 .longbow-hero-meta,
 .longbow-hero-intro,
@@ -4847,6 +5522,62 @@ html.owlsey-intro-seen [data-intro-overlay] {
 }
 
 @media (max-width: 767px) {
+  .home-intro {
+    height: 175svh;
+  }
+
+  .home-intro-title {
+    width: calc(100vw - 2rem);
+    font-size: clamp(3rem, 15.2vw, 5rem);
+    line-height: 0.82;
+  }
+
+  .home-intro-grid,
+  .chapter-route-grid {
+    background-image:
+      linear-gradient(90deg, transparent calc(50% - 0.5px), var(--line-strong) calc(50% - 0.5px), var(--line-strong) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  }
+
+  .home-intro-grid {
+    background-image: none;
+  }
+
+  .home-intro-grid .is-quarter {
+    display: none;
+  }
+
+  .chapter-route {
+    height: 210svh;
+  }
+
+  .chapter-route-stage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: calc(var(--nav-height) + 2.5rem) 1.25rem 1.25rem;
+  }
+
+  .chapter-route-eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  .chapter-route-title {
+    grid-column: 1 / -1;
+    font-size: clamp(3.5rem, 16vw, 6rem);
+    line-height: 0.82;
+  }
+
+  .chapter-route-points {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chapter-route-points li {
+    min-height: 74px;
+    padding: 0.8rem;
+  }
+
+  .chapter-route-points li:nth-child(2) {
+    border-right: 0;
+  }
+
   .longbow-hero-grid {
     min-height: 0;
   }
@@ -4857,6 +5588,40 @@ html.owlsey-intro-seen [data-intro-overlay] {
 
   .longbow-hero-visual {
     display: none;
+  }
+
+  .longbow-hero-center {
+    display: flex;
+    min-height: min(34rem, 86svh);
+    align-items: center;
+    padding: calc(var(--nav-height) + 3rem) clamp(1.5rem, 7vw, 2rem) 3rem;
+    border-right: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .longbow-hero-center h1 {
+    margin-top: 1.25rem;
+    font-family: var(--font-impact);
+    font-size: clamp(3.7rem, 17vw, 6.2rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    color: var(--text-strong);
+  }
+
+  .longbow-hero-center h1 span {
+    color: var(--accent-strong);
+  }
+
+  .longbow-hero-center-note {
+    margin-top: 1.5rem;
+    max-width: 34ch;
+    border-top: 1px solid var(--line-strong);
+    padding-top: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--text-muted);
   }
 
   .longbow-hero-emblem {
@@ -4945,8 +5710,38 @@ html.owlsey-intro-seen [data-intro-overlay] {
   }
 
   .longbow-hero-visual {
+    display: none;
+  }
+
+  .longbow-hero-center {
+    display: flex;
     grid-column: 1 / -1;
-    min-height: clamp(24rem, 48dvh, 34rem);
+    min-height: clamp(30rem, 72svh, 44rem);
+    align-items: center;
+    padding: calc(var(--nav-height) + 4rem) clamp(2rem, 7vw, 5rem) 4rem;
+    border-right: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .longbow-hero-center h1 {
+    margin-top: 1.5rem;
+    font-family: var(--font-impact);
+    font-size: clamp(5rem, 11vw, 8rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    color: var(--text-strong);
+  }
+
+  .longbow-hero-center h1 span {
+    color: var(--accent-strong);
+  }
+
+  .longbow-hero-center-note {
+    margin-top: 2rem;
+    max-width: 44ch;
+    color: var(--text-muted);
   }
 
   .longbow-hero-emblem {
@@ -5021,9 +5816,9 @@ html.owlsey-intro-seen [data-intro-overlay] {
 
   .longbow-hero-center h1 {
     margin-top: clamp(1.25rem, 2vw, 2rem);
-    max-width: 11ch;
+    max-width: 12ch;
     font-family: var(--font-impact);
-    font-size: clamp(4.8rem, 8vw, 9.6rem);
+    font-size: clamp(4rem, 5.6vw, 7.2rem);
     font-weight: 700;
     line-height: 0.79;
     letter-spacing: -0.06em;
@@ -5142,6 +5937,11 @@ html.owlsey-intro-seen [data-intro-overlay] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-intro,
+  .chapter-route {
+    height: var(--viewport-grid-height);
+  }
+
   .longbow-hero-emblem {
     transform: translate(-50%, -50%);
   }
@@ -6016,10 +6816,9 @@ html.js [data-hero-eyebrow-tick] {
    ──────────────────────────────────────────────────────────── */
 .cookie-consent {
   position: fixed;
-  /* Align to the capped shell on big screens (page frame + big-screen gutter). */
-  left: calc(var(--page-frame) + var(--shell-inset));
-  right: calc(var(--page-frame) + var(--shell-inset));
-  bottom: var(--page-frame);
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 90;
   display: block;
   pointer-events: none;
@@ -6030,7 +6829,8 @@ html.js [data-hero-eyebrow-tick] {
 .cookie-consent-panel {
   pointer-events: auto;
   width: 100%;
-  padding: clamp(1.4rem, 2.4vw, 2rem) clamp(1.4rem, 4vw, 3.5rem);
+  font-family: var(--font-label);
+  padding: clamp(0.8rem, 1.4vw, 1.15rem) clamp(1rem, 2.4vw, 2rem);
   border: 0;
   border-top: 1px solid var(--line-strong);
   border-radius: 0;
@@ -6050,7 +6850,7 @@ html.js [data-hero-eyebrow-tick] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(1.5rem, 4vw, 4rem);
+  gap: clamp(1rem, 2.5vw, 2.5rem);
   width: 100%;
   margin: 0 auto;
   max-width: 1400px;
@@ -6063,15 +6863,15 @@ html.js [data-hero-eyebrow-tick] {
 .cookie-consent-head {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.7rem;
+  gap: 0.55rem;
+  margin-bottom: 0.35rem;
 }
 
 .cookie-consent-icon {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   flex: none;
   border-radius: 999px;
   border: 1px solid var(--line-accent);
@@ -6080,17 +6880,34 @@ html.js [data-hero-eyebrow-tick] {
 }
 
 .cookie-consent-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-impact);
+  font-size: clamp(1.55rem, 2.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  margin-bottom: 0.3rem;
+}
+
+.cookie-consent-title > span:not(.accent-stop) {
+  color: var(--accent-strong);
+  text-shadow: 0 0 16px rgba(95, 112, 216, 0.2);
 }
 
 .cookie-consent-copy {
-  font-size: 0.875rem;
-  line-height: 1.55;
-  max-width: 62ch;
+  font-family: var(--font-label);
+  font-size: 9px;
+  line-height: 1.7;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  max-width: 84ch;
+}
+
+@media (min-width: 861px) {
+  .cookie-consent-title {
+    white-space: nowrap;
+  }
 }
 
 .cookie-consent-link {
@@ -6131,15 +6948,20 @@ html.js [data-hero-eyebrow-tick] {
 }
 
 .cookie-consent-option-label {
-  font-size: 0.9rem;
+  font-family: var(--font-label);
+  font-size: 9px;
   color: var(--text-strong);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .cookie-consent-option-desc {
   margin-top: 0.15rem;
-  font-size: 0.78rem;
-  line-height: 1.4;
+  font-family: var(--font-label);
+  font-size: 8px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-faint);
   max-width: 40ch;
 }
@@ -6209,7 +7031,7 @@ html.js [data-hero-eyebrow-tick] {
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 0.7rem 1.15rem;
+  padding: 0.55rem 1rem;
   border-radius: 999px;
   border: 1px solid transparent;
   transition: background-color 260ms ease, border-color 260ms ease, color 260ms ease, transform 260ms ease;

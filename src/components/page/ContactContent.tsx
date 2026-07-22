@@ -19,7 +19,7 @@ import {
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 
 const PROJECT_TYPES = [
   "Custom platform",
@@ -96,8 +96,8 @@ export default function ContactContent() {
         <Navbar />
         <main>
           <section className="chapter-steel" data-chapter="Contact" aria-labelledby="contact-title">
-            <div className="modular-grid contact-stage-grid contact-stage-grid--editorial has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid contact-stage-grid contact-stage-grid--editorial technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
               <div data-contact-cell className="modular-box contact-panel-intro flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <p className="display-kicker text-[color:var(--text-dim)]">Project enquiry</p>

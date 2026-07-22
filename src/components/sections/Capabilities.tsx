@@ -1,4 +1,5 @@
 import React from "react";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 
 const capabilities = [
   {
@@ -28,9 +29,11 @@ export const Capabilities: React.FC = () => {
     <section
       className="section-dark chapter-ink"
       data-chapter="Capabilities"
+      data-chapter-target="capabilities"
       aria-labelledby="capabilities-title"
     >
-      <div className="modular-grid modular-grid--viewport home-method-grid has-complete-junctions">
+      <div className="modular-grid modular-grid--viewport home-method-grid technical-grid-host">
+        <TechnicalGrid className="section-technical-grid" />
         <div className="modular-box md:col-span-2 lg:col-span-2 flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">What we build</p>
           <div>

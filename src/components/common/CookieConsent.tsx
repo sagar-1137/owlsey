@@ -53,6 +53,7 @@ export const CookieConsent: React.FC = () => {
   const consented = useSyncExternalStore(subscribe, hasConsent, () => true);
   // Local flag drives the exit animation before we actually unmount.
   const [dismissed, setDismissed] = useState(false);
+  const [presentationReady, setPresentationReady] = useState(false);
   const [customizing, setCustomizing] = useState(false);
   const [prefs, setPrefs] = useState<Record<OptionalCategory, boolean>>({
     analytics: false,
@@ -60,7 +61,50 @@ export const CookieConsent: React.FC = () => {
   });
 
   const panelRef = useRef<HTMLDivElement>(null);
-  const visible = !consented && !dismissed;
+  const visible = presentationReady && !consented && !dismissed;
+
+  // Keep the opening view clear on every route. The panel appears only after
+  // the visitor has meaningfully entered the page; on the homepage it also
+  // waits for the opening statement to finish typing.
+  useEffect(() => {
+    const intro = document.querySelector<HTMLElement>(".home-intro");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const hasReachedConsentPoint = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      return maxScroll > 24 && window.scrollY / maxScroll >= 0.45;
+    };
+    let typed = !intro || reducedMotion || intro.dataset.introReady === "true";
+    let moved = hasReachedConsentPoint();
+
+    const reveal = () => setPresentationReady(true);
+    const maybeReveal = () => {
+      if (typed && moved) reveal();
+    };
+    const onTyped = () => {
+      typed = true;
+      maybeReveal();
+    };
+    const onScroll = () => {
+      if (!hasReachedConsentPoint()) return;
+      moved = true;
+      maybeReveal();
+    };
+
+    // A genuinely non-scrollable route still needs a reachable consent choice.
+    const isScrollable = document.documentElement.scrollHeight > window.innerHeight + 24;
+    const fallback = isScrollable ? undefined : window.setTimeout(reveal, 1800);
+    if (intro && !typed) {
+      window.addEventListener("owlsey:intro-ready", onTyped, { once: true });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    maybeReveal();
+
+    return () => {
+      if (fallback) window.clearTimeout(fallback);
+      window.removeEventListener("owlsey:intro-ready", onTyped);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
   // Slide up from the bottom when it becomes visible.
   useEffect(() => {
@@ -126,7 +170,7 @@ export const CookieConsent: React.FC = () => {
               <p className="display-kicker text-[color:var(--text-dim)]">Privacy / Cookies</p>
             </div>
             <h2 id="cookie-consent-title" className="cookie-consent-title text-[color:var(--text-strong)]">
-              We use cookies to keep things working<span className="accent-stop">.</span>
+              We use <span>cookies</span> to keep things <span>working</span><span className="accent-stop">.</span>
             </h2>
             <p className="cookie-consent-copy text-[color:var(--text-muted)]">
               Essential cookies keep the site running. Analytics and preference

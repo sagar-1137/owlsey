@@ -5,7 +5,7 @@ import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
 import { ArrowUpRight } from "lucide-react";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 
 const solutions = [
   {
@@ -126,8 +126,8 @@ export const Projects: React.FC = () => {
       className="chapter-graphite"
       data-chapter="Solutions"
     >
-      <div className="modular-grid modular-grid--viewport home-solutions-grid has-complete-junctions">
-        <GridJunctions />
+      <div className="modular-grid modular-grid--viewport home-solutions-grid technical-grid-host">
+        <TechnicalGrid className="section-technical-grid" />
         <div className="modular-box home-solutions-lead md:col-span-2 lg:col-span-2 flex flex-col justify-between">
           <p className="display-kicker text-[color:var(--text-dim)]">What we build</p>
           <div>

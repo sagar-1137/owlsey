@@ -38,9 +38,6 @@ import {
   SiVercel,
 } from "react-icons/si";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TechLogo = { name: string; Icon: React.ComponentType<any> };
-
 const techGroups = [
   {
     id: "F-01",
@@ -113,16 +110,13 @@ const techGroups = [
   },
 ];
 
-const techRows = createBalancedOddEvenRows(
-  techGroups.flatMap((group) => group.tools),
-);
-
 /**
  * Calm partner-logo style stack panel. It keeps the old marquee content but
  * presents it as a premium grid that matches the site's modular language.
  */
 export const TechMarqueeSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeCategory, setActiveCategory] = React.useState<string>("ALL");
 
   useGSAP(
     () => {
@@ -133,46 +127,25 @@ export const TechMarqueeSection: React.FC = () => {
       if (reduceMotion) return;
 
       const gsap = ensureGsap();
-      const rows = gsap.utils.toArray<HTMLElement>(".tech-logo-row", section);
-      const cells = gsap.utils.toArray<HTMLElement>(".tech-logo-cell:not(.tech-logo-cell-empty)", section);
+      const cards = gsap.utils.toArray<HTMLElement>(".tech-grid-card", section);
       const rules = gsap.utils.toArray<HTMLElement>("[data-tech-rule]", section);
 
-      gsap.set(rows, { opacity: 0, y: 18 });
-      gsap.set(cells, { opacity: 0, y: 10 });
+      gsap.set(cards, { opacity: 0, y: 16, scale: 0.96 });
       gsap.set(rules, { scaleX: 0, transformOrigin: "left center" });
 
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: section,
-          start: "top 92%",
-          end: "top 42%",
+          start: "top 90%",
+          end: "top 45%",
           scrub: 0.75,
         },
       });
 
       timeline
-        .to(rules, { scaleX: 1, duration: 0.9, stagger: 0.08 }, 0)
-        .to(rows, { opacity: 1, y: 0, duration: 0.7, stagger: 0.07 }, 0.08)
-        .to(cells, { opacity: 1, y: 0, duration: 0.5, stagger: { each: 0.018, from: "start" } }, 0.18);
-
-      const sheen = section.querySelector<HTMLElement>(".tech-logo-sheen");
-      if (sheen && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        gsap.fromTo(
-          sheen,
-          { xPercent: -125 },
-          {
-            xPercent: 125,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.8,
-            },
-          },
-        );
-      }
+        .to(rules, { scaleX: 1, duration: 0.8, stagger: 0.08 }, 0)
+        .to(cards, { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: { each: 0.02, from: "start" } }, 0.15);
 
       return () => ScrollTrigger.getAll().forEach((trigger) => {
         if (trigger.trigger === section) trigger.kill();
@@ -181,82 +154,77 @@ export const TechMarqueeSection: React.FC = () => {
     { scope: sectionRef },
   );
 
+  const categories = ["ALL", "FRONTEND", "BACKEND", "INFRA & DATA", "AI & ML", "DESIGN"];
+
+  const allTools = techGroups.flatMap((group) =>
+    group.tools.map((t) => ({ ...t, groupId: group.id, category: group.label }))
+  );
+
+  const filteredTools = activeCategory === "ALL"
+    ? allTools
+    : allTools.filter((t) => t.category.toUpperCase().includes(activeCategory) || activeCategory.includes(t.category.toUpperCase()));
+
   return (
     <section
       ref={sectionRef}
-      className="section-dark chapter-obsidian tech-logo-section"
+      className="section-dark chapter-obsidian tech-logo-section py-16"
       data-chapter="TechMarquee"
       aria-labelledby="tech-marquee-title"
     >
-      <div className="tech-logo-panel has-complete-junctions relative overflow-hidden shadow-[0_28px_90px_rgba(0,0,0,0.35)]">
+      <div className="tech-logo-panel has-complete-junctions relative max-w-[1400px] mx-auto overflow-hidden shadow-[0_28px_90px_rgba(0,0,0,0.35)]">
         <GridJunctions />
         <div className="tech-logo-panel-glow pointer-events-none absolute inset-0" />
-        <div className="tech-logo-sheen pointer-events-none absolute inset-y-0 left-0 z-[2] w-[42%]" aria-hidden="true" />
         <span className="tech-logo-rule tech-logo-rule-top" data-tech-rule aria-hidden="true" />
         <span className="tech-logo-rule tech-logo-rule-header" data-tech-rule aria-hidden="true" />
         <span className="tech-logo-rule tech-logo-rule-bottom" data-tech-rule aria-hidden="true" />
 
-        <div className="tech-logo-header relative flex flex-col items-center justify-center px-6 text-center">
-          <h2 id="tech-marquee-title" className="text-[clamp(1.05rem,1.45vw,1.45rem)] font-semibold tracking-[-0.04em] text-white/68">
-            Technologies we <span className="text-white">build with.</span>
+        {/* Section Header */}
+        <div className="tech-logo-header relative flex flex-col items-center justify-center px-6 pt-10 text-center">
+          <p className="display-kicker text-[color:var(--text-faint)] tracking-[0.2em] mb-2 uppercase">ENGINEERING STACK</p>
+          <h2 id="tech-marquee-title" className="text-[clamp(1.8rem,3.2vw,3.2rem)] font-bold tracking-[-0.03em] text-white">
+            Technologies we <span className="text-[#8f9cff]">build with.</span>
           </h2>
-          <p className="mx-auto mt-1 max-w-[48ch] text-xs leading-5 text-white/46 md:text-sm">
-            A focused stack selected for fit, ownership, and maintainable delivery.
+          <p className="mx-auto mt-2 max-w-[54ch] text-xs leading-6 text-white/60 md:text-sm">
+            A focused, battle-tested stack selected for fit, ownership, and maintainable production delivery.
           </p>
+
+          {/* Interactive Category Filter Tabs */}
+          <div className="tech-filter-tabs">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={`tech-filter-tab ${activeCategory === cat ? "tech-filter-tab--active" : ""}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="tech-logo-grid relative" style={{ "--tech-row-count": techRows.length } as React.CSSProperties}>
-          {techRows.map((row, index) => (
-            <TechLogoRow key={`tech-row-${index}`} index={index} tools={row} />
-          ))}
+        {/* Grid Cards Container */}
+        <div className="tech-grid-container">
+          {filteredTools.map((tech) => {
+            const Icon = tech.Icon;
+            return (
+              <article key={`${tech.groupId}-${tech.name}`} className="tech-grid-card">
+                <div className="tech-card-header">
+                  <span className="tech-card-badge">{tech.groupId}</span>
+                  <span className="tech-card-type">{tech.category}</span>
+                </div>
+                <div className="tech-card-icon">
+                  <Icon size={26} />
+                </div>
+                <h3 className="tech-card-name">{tech.name}</h3>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
-
-function createBalancedOddEvenRows(items: TechLogo[]) {
-  const rows: TechLogo[][] = [];
-  let cursor = 0;
-  let rowIndex = 0;
-
-  while (cursor < items.length) {
-    const preferredSize = rowIndex % 2 === 0 ? 7 : 6;
-    const remaining = items.length - cursor;
-
-    if (remaining < 5 && rows.length > 0) {
-      rows[rows.length - 1].push(...items.slice(cursor));
-      break;
-    }
-
-    rows.push(items.slice(cursor, cursor + Math.min(preferredSize, remaining)));
-    cursor += preferredSize;
-    rowIndex += 1;
-  }
-
-  return rows;
-}
-
-function TechLogoRow({ index, tools }: { index: number; tools: TechLogo[] }) {
-  const emptyCells = Array.from({ length: Math.max(0, 7 - tools.length) });
-
-  return (
-    <div className="tech-logo-row">
-      <div className="tech-logo-label">
-        <span>{String(index + 1).padStart(2, "0")}</span>
-        <strong>{index % 2 === 0 ? "Build stack" : "Delivery stack"}</strong>
-      </div>
-      <div className="tech-logo-tools">
-        {tools.map((tech) => (
-          <TechCell key={tech.name} tech={tech} />
-        ))}
-        {emptyCells.map((_, emptyIndex) => (
-          <div key={`empty-${emptyIndex}`} className="tech-logo-cell tech-logo-cell-empty" aria-hidden="true" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function GoMark({ size = 24, className }: { size?: number; className?: string }) {
   return (
@@ -297,21 +265,6 @@ function AdobeMark({ size = 24, className, label }: { size?: number; className?:
         {label}
       </text>
     </svg>
-  );
-}
-
-function TechCell({ tech }: { tech: TechLogo }) {
-  const Icon = tech.Icon;
-
-  return (
-    <div className="tech-logo-cell group relative flex items-center justify-center gap-2.5 px-4 transition-colors duration-300 hover:bg-white/[0.035]">
-      <span className="grid size-6 place-items-center text-white/72 transition-colors duration-300 group-hover:text-white" aria-hidden="true">
-        <Icon size={21} />
-      </span>
-      <span className="whitespace-nowrap text-sm font-semibold tracking-[-0.03em] text-white/82 transition-colors duration-300 group-hover:text-white md:text-base">
-        {tech.name}
-      </span>
-    </div>
   );
 }
 

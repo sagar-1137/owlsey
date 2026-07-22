@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 
 let registered = false;
@@ -17,7 +18,7 @@ export function prefersReducedMotion(): boolean {
 export function ensureGsap() {
   if (typeof window === "undefined") return gsap;
   if (!registered) {
-    gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, useGSAP);
+    gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, Flip, useGSAP);
     registered = true;
   }
   // When the user opts into reduced motion, collapse every tween to its end
@@ -30,7 +31,7 @@ export function ensureGsap() {
   return gsap;
 }
 
-export { gsap, ScrollTrigger, SplitText, DrawSVGPlugin, useGSAP };
+export { gsap, ScrollTrigger, SplitText, DrawSVGPlugin, Flip, useGSAP };
 
 export function splitToWords(el: HTMLElement) {
   const text = el.textContent ?? "";

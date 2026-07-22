@@ -3,12 +3,11 @@
 import React, { useEffect, useRef } from "react";
 import { ArrowRight, ArrowUpRight, Target } from "lucide-react";
 import { MagneticGsap } from "@/components/common/MagneticGsap";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { ensureGsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const capabilities = ["Business platforms", "Internal tools", "Connected workflows"];
-const gridColumns = [0, 25, 50, 75, 100];
-const gridRows = [0, 50, 100];
 
 export const Hero: React.FC = () => {
   const heroRef = useRef<HTMLElement>(null);
@@ -17,30 +16,56 @@ export const Hero: React.FC = () => {
   useEffect(() => {
     const root = heroRef.current;
     const lightweightDevice = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
-    if (!root || prefersReducedMotion || lightweightDevice) return;
+    if (!root) return;
 
     const gsap = ensureGsap();
+    if (prefersReducedMotion || lightweightDevice) {
+      gsap.set(root.querySelector("[data-hero-grid]"), { clipPath: "none" });
+      gsap.set(root.querySelectorAll("[data-hero-reveal]"), {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        clipPath: "none",
+        filter: "blur(0px)",
+      });
+      gsap.set(root.querySelector("[data-hero-locked-title]"), { opacity: 1 });
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      // PHASE 1: Initial entrance timeline (~2.8s total)
-      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+      // The intro resolves into this grid; cells then assemble in reading order.
+      const timeline = gsap.timeline({
+        defaults: { ease: "power3.out" },
+        scrollTrigger: {
+          trigger: root,
+          // Begin exactly when the hero enters beneath the exiting sticky
+          // intro. Waiting until 78% left a blank clipped strip between the
+          // two states while the intro moved off the viewport.
+          start: "top bottom",
+          once: true,
+        },
+      });
 
       timeline
-        .from("[data-hero-grid]", {
-          clipPath: "inset(0 100% 0 0)",
+        .to("[data-hero-grid]", {
+          clipPath: "inset(0 0% 0 0)",
           duration: 1.15,
           ease: "power4.inOut",
         })
-        .from(
+        .to(
           "[data-hero-reveal]",
-          { opacity: 0, y: 24, filter: "blur(6px)", duration: 0.8, stagger: 0.08 },
+          {
+            opacity: 1,
+            y: 0,
+            x: 0,
+            clipPath: "inset(0% 0 0 0)",
+            filter: "blur(0px)",
+            duration: 0.92,
+            stagger: 0.09,
+          },
           0.5
         )
-        .fromTo(
-          "[data-hero-scan]",
-          { scaleX: 0, opacity: 0 },
-          { scaleX: 1, opacity: 1, duration: 1.1, ease: "power4.inOut" },
-          0.72,
-        );
+        .to("[data-hero-locked-title]", { opacity: 1, duration: 0.45 }, 0.72);
 
       const typeTarget = root.querySelector<HTMLElement>("[data-hero-type]");
       if (typeTarget) {
@@ -74,26 +99,28 @@ export const Hero: React.FC = () => {
   return (
     <section ref={heroRef} id="home" className="chapter-smoke relative" data-chapter="Direction">
       <div data-hero-grid className="longbow-hero-grid">
-        <div className="longbow-grid-junctions" aria-hidden="true">
-          {gridRows.flatMap((row) =>
-            gridColumns.map((column) => (
-              <span key={`${row}-${column}`} style={{ left: `${column}%`, top: `${row}%` }} />
-            ))
-          )}
-        </div>
+        <TechnicalGrid className="longbow-technical-grid" />
 
         <div className="longbow-hero-visual" aria-hidden="true">
           <div className="longbow-hero-wash" />
-          <div className="longbow-hero-scan" data-hero-scan />
         </div>
 
         <div className="longbow-hero-center" data-hero-reveal>
           <div className="longbow-hero-center-copy">
-            <p className="display-kicker text-[color:var(--text-faint)]">Independent software engineering / 01</p>
-            <h1>
-              Built around
+            <p className="display-kicker text-[color:var(--text-faint)]">Independent software engineering</p>
+            {/* The intro measures this heading as its landing slot. This copy
+                stays hidden until the hero reveal, creating a seamless visual
+                handoff while keeping the title locked in the hero afterward. */}
+            <h1
+              className="hero-locked-title hero-locked-title-static"
+              data-hero-title-slot
+              data-hero-locked-title
+            >
+              Software shaped
               <br />
-              <span>real work.</span>
+              around your
+              <br />
+              <span>business.</span>
             </h1>
             <p className="longbow-hero-center-note">
               Custom platforms, internal tools, and connected workflows shaped around how your team actually operates.

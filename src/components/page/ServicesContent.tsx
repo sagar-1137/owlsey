@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { GridJunctions } from "@/components/common/GridJunctions";
+import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
@@ -172,8 +172,8 @@ export default function ServicesContent() {
         <Navbar />
         <main>
           <section className="chapter-obsidian services-chapter" data-chapter="Services" aria-labelledby="services-title">
-            <div className="modular-grid services-hero-grid has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid services-hero-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-services-cell className="modular-box services-lead flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -250,8 +250,8 @@ export default function ServicesContent() {
           </section>
 
           <section className="chapter-steel services-chapter" data-chapter="Range" aria-labelledby="service-range-title">
-            <div className="modular-grid services-range-grid modular-grid--viewport has-complete-junctions">
-              <GridJunctions />
+            <div className="modular-grid services-range-grid modular-grid--viewport technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
 
               <div data-services-cell className="modular-box services-range-head md:col-span-2 lg:col-span-2 flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-dim)]">Service range</p>
