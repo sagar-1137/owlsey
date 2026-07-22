@@ -2,7 +2,6 @@ import React from "react";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Hero } from "@/components/sections/Hero";
 import { HomeIntro } from "@/components/sections/HomeIntro";
 import { ChapterRoute } from "@/components/sections/ChapterRoute";
 
@@ -15,7 +14,6 @@ export default function HomeContent() {
         <HomeIntro />
         <Navbar />
         <main>
-          <Hero />
           <ChapterRoute
             eyebrow="From brief to release"
             lines={["ONE CLEAR", "ROUTE."]}

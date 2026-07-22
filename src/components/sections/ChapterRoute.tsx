@@ -4,20 +4,32 @@ import React, { useEffect, useRef } from "react";
 import { ensureGsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
-import { ArrowUpRight } from "lucide-react";
 import {
-  SiNextdotjs,
+  AppWindow,
+  Box,
+  BrainCircuit,
+  CloudCog,
+  CreditCard,
+  Layers,
+  LayoutDashboard,
+  Network,
+  Server,
+  Smartphone,
+  Workflow,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
+import {
   SiReact,
   SiTypescript,
-  SiPython,
   SiNodedotjs,
   SiFlutter,
   SiPostgresql,
-  SiSupabase,
   SiRedis,
   SiClaude,
   SiDocker,
 } from "react-icons/si";
+import type { IconType } from "react-icons";
 
 type ChapterRouteProps = {
   eyebrow: string;
@@ -65,69 +77,63 @@ const heroSubtitles: Record<string, string> = {
   "THE STACK WE TRUST.": "FOCUSED. BATTLE-TESTED. SCALABLE.",
 };
 
+/* Exact-title lookups. The previous fuzzy `includes()` matching misfired in
+   both directions — "TypeScript & Go" claimed "Mon**go**DB" (TS logo on the
+   Redis card), "E-commerce" fell through to Postgres, and topic cards ended up
+   wearing unrelated brand logos. Exact titles cannot cross-match. */
+
+/* The stack chapter's cards name real technologies, so they wear the real
+   brand marks — one per pair, the first-named technology. */
+const stackLogos: Record<string, IconType> = {
+  "React & Next.js": SiReact,
+  "TypeScript & Go": SiTypescript,
+  "Node & Python": SiNodedotjs,
+  "Flutter & Mobile": SiFlutter,
+  "Postgres & Supabase": SiPostgresql,
+  "Redis & MongoDB": SiRedis,
+  "OpenAI & Claude": SiClaude,
+  "AWS & Docker": SiDocker,
+};
+
+/* Capability/system cards describe what we build, not a vendor — they get
+   subject icons (same stroke language as the rest of the interface) instead
+   of borrowed brand logos. */
+const topicIcons: Record<string, LucideIcon> = {
+  "Web applications": AppWindow,
+  "Mobile products": Smartphone,
+  "Internal tools": Wrench,
+  "Connected systems": Network,
+  "SaaS platforms": Layers,
+  "AI & Data engines": BrainCircuit,
+  "E-commerce & Fintech": CreditCard,
+  "Cloud infrastructure": Server,
+  "Core product": Box,
+  "Internal systems": LayoutDashboard,
+  "Automation": Workflow,
+  "Cloud & intelligence": CloudCog,
+};
+
 const PointGraphic: React.FC<{ title: string; index?: number }> = ({ title }) => {
   const t = title.toLowerCase();
 
-  // 1. Tech Stack (Chapter 4) & Capabilities (Chapter 2) Real Brand Logos from react-icons/si
-  if (t.includes("react") || t.includes("next")) {
-    return <SiNextdotjs className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("typescript") || t.includes("go")) {
-    return <SiTypescript className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("node") || t.includes("python")) {
-    return <SiPython className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("flutter") || t.includes("mobile")) {
-    return <SiFlutter className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("postgres") || t.includes("supabase")) {
-    return <SiPostgresql className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("redis") || t.includes("mongodb")) {
-    return <SiRedis className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("openai") || t.includes("claude")) {
-    return <SiClaude className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("aws") || t.includes("docker")) {
-    return <SiDocker className="chapter-route-card-graphic" size={135} />;
+  const BrandLogo = stackLogos[title];
+  if (BrandLogo) {
+    return <BrandLogo className="chapter-route-card-graphic" size={135} />;
   }
 
-  if (t.includes("web app")) {
-    return <SiNextdotjs className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("internal tool") || t.includes("admin")) {
-    return <SiReact className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("connected system") || t.includes("api")) {
-    return <SiNodedotjs className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("saas")) {
-    return <SiSupabase className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("ai") || t.includes("data")) {
-    return <SiClaude className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("e-commerce") || t.includes("fintech")) {
-    return <SiPostgresql className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("cloud") || t.includes("infrastructure")) {
-    return <SiDocker className="chapter-route-card-graphic" size={135} />;
+  const TopicIcon = topicIcons[title];
+  if (TopicIcon) {
+    return (
+      <TopicIcon
+        className="chapter-route-card-graphic"
+        size={135}
+        strokeWidth={1}
+        aria-hidden="true"
+      />
+    );
   }
 
-  // 2. Core Product / Systems (Chapter 3)
-  if (t.includes("core product")) {
-    return <SiNextdotjs className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("internal system")) {
-    return <SiReact className="chapter-route-card-graphic" size={135} />;
-  }
-  if (t.includes("automation")) {
-    return <SiNodedotjs className="chapter-route-card-graphic" size={135} />;
-  }
-
-  // 3. Chapter 1 Method
+  // Chapter 1 (method) keeps its bespoke schematic illustrations.
   if (t.includes("understand")) {
     return (
       <svg className="chapter-route-card-graphic" viewBox="0 0 240 110" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -248,35 +254,41 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
           ease: "power3.out",
         }, 0.35);
       } else {
-        // 8-point chapters (Chapter 2 & 4):
-        // Step 2: After title settles, reveal Batch 0 (01, 02, 03, 04) on scroll (0.32 -> 0.52)
+        // 8-point chapters (Chapter 2 & 4). The three phases own disjoint
+        // scrub windows — the previous timings let the staggered batch-0
+        // entrance (last card still animating until 0.66) outlive the batch-0
+        // exit (done at 0.64), so the stale entrance re-lit old cards while
+        // batch 1 was already fading in: both batches visible at once.
+        //
+        // Step 2: reveal Batch 0 (01–04); last card settled by 0.55.
         timeline.to(batch0Cards, {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.22,
-          stagger: 0.04,
+          duration: 0.16,
+          stagger: 0.03,
           ease: "power3.out",
-        }, 0.32);
+        }, 0.30);
 
-        // Step 3: Transition out Batch 0 on scroll (0.54 -> 0.62)
+        // Step 3: Batch 0 out, strictly after every entrance finished (0.56 -> 0.64)
         timeline.to(batch0Cards, {
           opacity: 0,
           y: -20,
           scale: 0.95,
-          duration: 0.10,
+          duration: 0.08,
           ease: "power2.in",
-        }, 0.54);
+        }, 0.56);
 
-        // Step 4: Reveal Batch 1 (05, 06, 07, 08) on continued scroll (0.65 -> 0.84)
+        // Step 4: Batch 1 (05–08) in, strictly after Batch 0 is gone; last
+        // card settles at 0.84, exactly when the stage handoff begins.
         timeline.to(batch1Cards, {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.22,
-          stagger: 0.04,
+          duration: 0.12,
+          stagger: 0.02,
           ease: "power3.out",
-        }, 0.65);
+        }, 0.66);
       }
 
       // Stage transition handoff

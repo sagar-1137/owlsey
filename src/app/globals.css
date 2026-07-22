@@ -4327,17 +4327,17 @@ html.js [data-hero-locked-title] {
   mask-image: linear-gradient(to bottom, transparent, black 26%, black 72%, transparent);
 }
 
-/* The hero is pre-positioned beneath the final sticky intro viewport. At the
-   end of the scrub the intro fades, revealing a fully assembled hero instead
-   of spending another viewport sliding the grid and title out of frame. */
+/* The intro is now the permanent hero and no longer fades to reveal a section
+   beneath it, so `main` flows right after the intro's scroll length (the old
+   -100dvh duplicate-hero overlap is gone). The intro's frame keeps its bottom
+   rail a page-frame above the section boundary, while the first chapter's
+   TechnicalGrid draws its top rail exactly at the boundary — two parallel
+   lines a few px apart. Same cure as the grid system's adjacent-section
+   collapse (`section + section { margin-top: -1px }`, which cannot reach
+   across the intro/main boundary): pull `main` up one page-frame so the
+   chapter's top rail lands on the intro's bottom rail — one shared edge. */
 .home-shell > main {
-  margin-top: -100dvh;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-shell > main {
-    margin-top: 0;
-  }
+  margin-top: calc(-1 * var(--page-frame) - 1px);
 }
 
 .chapter-route-grid {
@@ -4353,6 +4353,94 @@ html.js [data-hero-locked-title] {
 .home-intro-grid {
   opacity: 0;
   background-image: none;
+}
+
+/* The resolved grid's top row holds only the statement's landing slot, centred
+   in the middle two columns. Mirrors the bottom cells band, pinned to the upper
+   half of the framed 4x2 grid. Sits behind the travelling title (lower z) so
+   the moving statement stays on top until it settles onto the slot. */
+.home-intro-topbar {
+  position: absolute;
+  left: var(--page-frame);
+  right: var(--page-frame);
+  top: var(--page-frame);
+  height: calc((100dvh - var(--page-frame) * 2) / 2);
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  pointer-events: none;
+}
+
+/* The landing slot spans the centre two columns — the same footprint the
+   statement resolves to. Empty and non-painting; only its measured box matters.
+   Anchored to the top of the band, just under the navigation, so the settled
+   statement reads as content of the top row's grid box; centring it let the
+   landing point drift downward on tall viewports and the statement crossed
+   the mid rail into the bottom row. */
+.home-intro-slot {
+  grid-column: 2 / 4;
+  align-self: start;
+  justify-self: center;
+  margin-top: calc(var(--nav-height) + clamp(1.25rem, 3vh, 2.5rem));
+  width: 100%;
+  aspect-ratio: 1472 / 382;
+  max-height: 3.1em;
+  font-size: clamp(2.6rem, 5.6vw, 5.6rem);
+  pointer-events: none;
+}
+
+/* The resolved grid's bottom row, holding the same four cells the hero owns.
+   It overlays the stage's framed area (inset by the page frame, matching the
+   grid lines) as a 4-column band pinned to the lower half — exactly where the
+   blank cells sit once the statement has travelled up. Hidden until the intro
+   timeline reveals it, so it never competes with the opening statement. */
+.home-intro-cells {
+  position: absolute;
+  left: var(--page-frame);
+  right: var(--page-frame);
+  bottom: var(--page-frame);
+  /* Lower half of the framed 4x2 grid. */
+  height: calc((100dvh - var(--page-frame) * 2) / 2);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  pointer-events: none;
+}
+
+/* Hidden by default so the cells never flash over the opening statement before
+   the reveal JS runs; the travel timeline animates each in after the statement
+   settles. Reduced motion (below) opts back to fully visible, since it skips
+   the timeline entirely. */
+.home-intro-cells [data-intro-cell] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-intro-cells [data-intro-cell] {
+    opacity: 1;
+  }
+}
+
+/* The intro copies inherit the hero cell styling but must fit one row, not the
+   hero's taller cell. Drop the hero min-heights and let the grid row govern.
+   The solid cell backgrounds are also removed here: over the intro stage they
+   painted an opaque block behind the still-visible statement. The stage's own
+   dark gradient shows through instead, so only the grid lines and content read. */
+.home-intro-cells .longbow-hero-intro,
+.home-intro-cells .longbow-hero-statement,
+.home-intro-cells .longbow-hero-capabilities,
+.home-intro-cells .longbow-hero-route {
+  min-height: 0;
+  height: 100%;
+  pointer-events: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  /* The TechnicalGrid frame already draws every grid line. The shared hero
+     cells also carry their own right/bottom borders, which doubled up against
+     the frame's lines at the row boundary — a visible double rule. Drop the
+     cell borders inside the intro and let the frame own all the ruling. */
+  border: 0;
 }
 
 .home-intro-title {

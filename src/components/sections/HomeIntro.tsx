@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { Mouse } from "lucide-react";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
+import { HeroContentCells } from "@/components/sections/HeroContentCells";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -48,6 +49,9 @@ export const HomeIntro: React.FC = () => {
       );
       const stage = root.querySelector<HTMLElement>("[data-intro-stage]");
       const title = root.querySelector<HTMLElement>("[data-intro-title]");
+      // The bottom-row cells that fill the resolved grid once the statement has
+      // settled. Their reveal is staggered at the tail of the travel timeline.
+      const cells = root.querySelectorAll<HTMLElement>("[data-intro-cell]");
       const navigation = document.querySelector<HTMLElement>(".owlsey-nav-fixed");
       // The hero reserves an empty slot at the exact place and scale the
       // statement must end at. Flip measures that slot rather than us guessing
@@ -77,6 +81,9 @@ export const HomeIntro: React.FC = () => {
       if (framePerimeterRegisters) gsap.set(framePerimeterRegisters, { opacity: 0, scale: 0.86 });
       if (frameInternalRegisters) gsap.set(frameInternalRegisters, { opacity: 0, scale: 0.72 });
       gsap.set(stage, { clipPath: "inset(0px round 0px)" });
+      // Cells start hidden and slightly low; the tail of the travel timeline
+      // brings them up once the statement has reached the hero.
+      gsap.set(cells, { opacity: 0, y: 28 });
       if (navigation) gsap.set(navigation, { opacity: 0, y: -14 });
 
       const settle = () => {
@@ -208,15 +215,24 @@ export const HomeIntro: React.FC = () => {
       if (frameHorizontalRails?.length) travel.to(frameHorizontalRails, { scaleX: 1, duration: 0.48, stagger: 0.04, ease: "power2.inOut" }, 0.22);
       if (frameInternalRegisters?.length) travel.to(frameInternalRegisters, { opacity: 1, scale: 1, duration: 0.2, stagger: 0.018, ease: "power2.out" }, 0.34);
       if (navigation) travel.to(navigation, { opacity: 1, y: 0, duration: 0.2 }, 0.58);
-      // The hero owns the same perimeter at the handoff. Remove the intro
-      // copy just before it fades so the shared bottom edge never doubles.
-      travel.to(frame, { opacity: 0, duration: 0.05, ease: "none" }, 0.89);
-      // The prepared hero occupies the same final viewport underneath this
-      // layer. Fade the intro at the handoff instead of letting its sticky
-      // stage unpin and visibly slide/crop across another full viewport.
-      travel.to(root, { opacity: 0, duration: 0.08, ease: "none" }, 0.92);
+      // Once the statement has settled into the hero slot (~0.78), fill the
+      // resolved grid's bottom row one cell at a time. This is the second,
+      // distinct phase: the criteria arrive only after the headline lands, not
+      // during its travel. Finishes before the intro fades so no cell is caught
+      // mid-reveal at the handoff.
+      if (cells.length) {
+        travel.to(
+          cells,
+          { opacity: 1, y: 0, duration: 0.05, stagger: 0.028, ease: "power2.out" },
+          0.79
+        );
+      }
+      // The intro is now the permanent hero — it no longer fades to reveal a
+      // separate section beneath it, so the frame and root stay fully visible
+      // through the whole scrub. (Previously both faded here to hand off to a
+      // duplicate <Hero />, which has been removed.)
 
-      // The intro title travels toward the hero's matching locked heading. It
+      // The intro title travels toward its own locked landing slot. It
       // stays parented to the sticky stage during the scroll so the transform
       // remains stable; the hero copy takes over once its grid reveals.
       //
@@ -256,28 +272,29 @@ export const HomeIntro: React.FC = () => {
         const landingWidth = Math.max(to.width, navigationBox?.width ?? 0);
         scale = Math.min(1, landingWidth / (visibleLineWidth || from.width));
 
-        // The stage is sticky and the slot is not, so their relative offset
-        // depends on scroll position. Both are therefore converted into
-        // document space and evaluated at the scroll position where the travel
-        // actually ends — the end of the intro section — rather than at
-        // whatever position happened to be current when this ran.
-        const scrollY = window.scrollY;
-        const toDocTop = to.top + scrollY;
-        const hero = slot.closest<HTMLElement>("section");
-        const heroDocTop = hero
-          ? hero.getBoundingClientRect().top + scrollY
-          : root.offsetTop + root.offsetHeight;
-        // Land at the slot's position within the upcoming hero, expressed in
-        // viewport space. This makes the title rise into its locked location
-        // instead of chasing a below-the-fold document coordinate.
-        const landingTop = toDocTop - heroDocTop;
+        // The settled statement must sit fully inside the top row's grid box.
+        // The width-driven scale alone could leave the scaled block taller
+        // than the space between the slot and the mid rail, letting the last
+        // line bleed into the bottom row — cap the scale to the available
+        // height as well.
+        const stageBox = stage.getBoundingClientRect();
+        const midRail = stageBox.top + stageBox.height / 2;
+        const availableHeight = midRail - to.top - 24;
+        if (availableHeight > 0 && from.height * scale > availableHeight) {
+          scale = availableHeight / from.height;
+        }
 
+        // The slot now lives in the same sticky stage as the title, so their
+        // relative offset is constant regardless of scroll — the delta is just
+        // slot-minus-title measured at rest. (No document-space conversion is
+        // needed anymore; that was for the old below-the-fold hero slot.)
         const landingCenterX = navigationBox
           ? navigationBox.left + navigationBox.width / 2
           : to.left + to.width / 2;
         deltaX = landingCenterX - (from.left + from.width / 2);
+        // Account for the shrink pulling the box toward its centre origin.
         const measuredDeltaY =
-          landingTop - from.top - (from.height * (1 - scale)) / 2;
+          to.top - from.top - (from.height * (1 - scale)) / 2;
         deltaY = Math.min(measuredDeltaY, -24);
       };
 
@@ -311,9 +328,23 @@ export const HomeIntro: React.FC = () => {
   }, [prefersReducedMotion]);
 
   return (
-    <section ref={sectionRef} className="home-intro" aria-label="Owlsey introduction">
+    <section
+      ref={sectionRef}
+      id="home"
+      className="home-intro"
+      data-chapter="Direction"
+      aria-label="Owlsey introduction"
+    >
       <div className="home-intro-stage" data-intro-stage>
         <TechnicalGrid className="home-intro-grid" data-intro-frame />
+
+        {/* The resolved grid's top row holds only the statement's landing slot,
+            centred in columns 2–3. It is empty and invisible — a measurement
+            target for the travelling headline, nothing rendered. */}
+        <div className="home-intro-topbar" data-intro-topbar aria-hidden="true">
+          <div className="home-intro-slot" data-hero-title-slot data-hero-locked-title />
+        </div>
+
         <div className="home-intro-title" data-intro-title>
           <h1 className="home-intro-heading">
             {lines.map((line) => (
@@ -332,6 +363,12 @@ export const HomeIntro: React.FC = () => {
               </span>
             ))}
           </h1>
+        </div>
+        {/* The resolved grid's bottom row. These are the same four cells the
+            hero renders; here they occupy the intro's own lower row so they
+            fill the blank cells once the statement has settled into place. */}
+        <div className="home-intro-cells" data-intro-cells aria-hidden="true">
+          <HeroContentCells revealAttr="data-intro-cell" />
         </div>
         <div className="home-intro-scroll" data-intro-scroll>
           <span>Scroll to shape the system</span>
