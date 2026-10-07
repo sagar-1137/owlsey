@@ -31,6 +31,7 @@ const STATIC_ROUTES: Array<{ path: string; sources: string[] }> = [
   { path: "", sources: ["src/app/page.tsx", "src/components/page/HomeContent.tsx", "src/components/sections"] },
   { path: "/services", sources: ["src/app/services", "src/components/page/ServicesContent.tsx"] },
   { path: "/projects", sources: ["src/app/projects/page.tsx", "src/components/page/ProjectsContent.tsx", "src/data/projectCases.ts"] },
+  { path: "/about", sources: ["src/app/about", "src/components/page/AboutContent.tsx"] },
   { path: "/experience", sources: ["src/app/experience", "src/components/page/ExperienceContent.tsx"] },
   { path: "/contact", sources: ["src/app/contact", "src/components/page/ContactContent.tsx"] },
   { path: "/privacy", sources: ["src/app/privacy", "src/components/page/PrivacyContent.tsx"] },

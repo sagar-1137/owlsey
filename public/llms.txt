@@ -1,9 +1,10 @@
 # Owlsey
 
-> Owlsey is a custom software studio based in India. It designs, builds and supports custom web applications, mobile apps, internal tools, integrations and SaaS products for growing businesses.
+> Owlsey (owlsey.com) is a custom software studio based in Surat, Gujarat, India. It designs, builds and supports custom web applications, mobile apps, internal tools, integrations and SaaS products for growing businesses.
 
 ## Key facts
 
+- Location: Surat, Gujarat, India; works with clients in India.
 - Building software since 2020; 28+ projects delivered.
 - Team: 7–8 core engineers plus a specialist network.
 - Engagement: free discovery, then a written scope and a fixed estimate before any build work starts.
@@ -11,6 +12,12 @@
 - Ownership: the source code, designs and IP belong to the client. NDA signed on request.
 - Support: the first months after launch are included at no cost, as set in the agreement.
 - Contact: hello@owlsey.com — replies within three business days.
+
+## How Owlsey works
+
+- Hard problems are welcome: Owlsey works out how a difficult requirement can be done before deciding whether it should.
+- No fixed stack: each project gets the technology that fits its users, scale and the team that will run it.
+- Owlsey suggests, not just follows: when a different technology or approach will give a better result, it says so, with the reason, before building.
 
 ## What Owlsey builds
 
@@ -37,6 +44,7 @@
 - [Home](https://owlsey.com/): what Owlsey builds, how it works, selected work and FAQ
 - [Services](https://owlsey.com/services): custom platforms, internal tools, integrations and delivery
 - [Projects](https://owlsey.com/projects): case studies and Owlsey's own products
+- [About](https://owlsey.com/about): who Owlsey is, where it is based and how it works
 - [Process & experience](https://owlsey.com/experience): how a project runs from brief to release
 - [Start a project](https://owlsey.com/contact): share a requirement or question
 

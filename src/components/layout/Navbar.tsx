@@ -12,7 +12,8 @@ const navLinks = [
   { label: "Services", href: "/services", note: "What we build", index: "02" },
   { label: "Projects", href: "/projects", note: "Selected systems", index: "03" },
   { label: "Experience", href: "/experience", note: "How we deliver", index: "04" },
-  { label: "Contact", href: "/contact", note: "Open a brief", index: "05" },
+  { label: "About", href: "/about", note: "Who we are", index: "05" },
+  { label: "Contact", href: "/contact", note: "Open a brief", index: "06" },
 ];
 const navGridColumns = [0, 25, 50, 75, 100];
 const closedNavColumns = [0, 34, 100];
@@ -153,7 +154,7 @@ export const Navbar: React.FC = () => {
               <span key={column} style={{ left: `${column}%` }} />
             ))}
           </div>
-          <div className="owlsey-nav-overlay-label" data-overlay-cell>Navigation / 05</div>
+          <div className="owlsey-nav-overlay-label" data-overlay-cell>Navigation / {String(navLinks.length).padStart(2, "0")}</div>
           <Link href="/" onClick={() => setIsOpen(false)} tabIndex={isOpen ? 0 : -1} className="owlsey-nav-overlay-brand" aria-label="Owlsey home">
             <Image src="/logos/owlsey_generated_lockup.svg" alt="Owlsey" width={203} height={59} className="h-9 w-auto object-contain lg:h-10" />
           </Link>

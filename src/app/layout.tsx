@@ -52,6 +52,12 @@ const structuredData = {
       description: DESCRIPTION,
       slogan: "Software that fits.",
       foundingDate: "2020",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Surat",
+        addressRegion: "Gujarat",
+        addressCountry: "IN",
+      },
       numberOfEmployees: { "@type": "QuantitativeValue", minValue: 7, maxValue: 8 },
       email: "hello@owlsey.com",
       areaServed: { "@type": "Place", name: "Worldwide" },
@@ -120,6 +126,10 @@ export const metadata: Metadata = {
   /* ── Canonical & Robots ────────────────────────────────── */
   alternates: {
     canonical: "/",
+  },
+  // Search-engine ownership checks (Google is verified at the DNS level).
+  verification: {
+    other: { "msvalidate.01": "329794E06364FECC426E0C32C4352A7F" },
   },
   robots: {
     index: true,

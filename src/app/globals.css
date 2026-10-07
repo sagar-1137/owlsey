@@ -4230,16 +4230,8 @@ html.js [data-hero-locked-title] {
     padding: var(--cell-pad);
   }
 
-  .owlsey-nav-link[href="/experience"] {
-    grid-column: 1 / 3;
-  }
-
   .owlsey-nav-link-title {
     font-size: clamp(3.5rem, 5.2vw, 6.4rem);
-  }
-
-  .owlsey-nav-link[href="/experience"] .owlsey-nav-link-title {
-    font-size: clamp(4rem, 6.4vw, 7.4rem);
   }
 
   .owlsey-nav-links-junctions,
@@ -9167,4 +9159,131 @@ html.js [data-hero-eyebrow-tick] {
 .testimonials-counter-mask > span {
   display: flex;
   flex-direction: column;
+}
+
+/* ── About page ────────────────────────────────────────────────────────── */
+/* Same ink and surfaces as the Experience page, but free-flowing rows: the
+   experience grids pin their cells to fixed positions. */
+.about-grid {
+  --text-strong: #f6f8ff;
+  --text-body: rgba(246, 248, 255, 0.86);
+  --text-muted: rgba(246, 248, 255, 0.78);
+  --text-dim: rgba(246, 248, 255, 0.66);
+  --text-faint: rgba(246, 248, 255, 0.54);
+  background:
+    radial-gradient(circle at 50% 12%, rgba(95, 112, 216, 0.055), transparent 28%),
+    rgba(8, 13, 19, 0.88);
+}
+
+.about-grid > .modular-box {
+  background: rgba(6, 11, 17, 0.52);
+}
+
+.about-lead,
+.about-head,
+.about-card,
+.about-cta {
+  gap: 2rem;
+}
+
+.about-lead {
+  min-height: clamp(26rem, 72vh, 42rem);
+}
+
+.about-head {
+  min-height: 14rem;
+}
+
+.about-card {
+  min-height: 22rem;
+}
+
+.about-cta {
+  min-height: 15rem;
+}
+
+.about-lead > *,
+.about-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.about-facts {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.about-facts > div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.4fr) 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--line-subtle);
+  padding: 1rem 0;
+}
+
+.about-facts dt {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.about-facts dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.9vw, 1.75rem);
+  line-height: 1.2;
+  color: var(--text-strong);
+}
+
+.about-commitments {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  border-top: 1px solid var(--line-strong);
+  padding: 1rem 0 0;
+  list-style: none;
+}
+
+.about-commitments li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.about-commitments li::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-strong);
+}
+
+@media (min-width: 768px) {
+  /* The first row sits under the fixed nav. */
+  .about-lead {
+    padding-top: calc(var(--cell-pad) + var(--nav-height));
+  }
+}
+
+@media (max-width: 767px) {
+  .about-lead:not(.about-facts-cell) {
+    padding-top: calc(var(--cell-pad) + var(--nav-height));
+  }
+
+  .about-facts-cell {
+    min-height: 0;
+  }
+
+  .about-facts > div {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
 }
