@@ -47,10 +47,8 @@ const TIMELINES = ["As soon as possible", "1–3 months", "3–6 months", "Flexi
 
 const TRUST_POINTS = ["NDA on request", "Code & IP are yours", "Free discovery"];
 
-/** Set to a form service URL (Web3Forms, Formspree, a Pages Function…) to send
- *  briefs directly. Without it, the brief is handed to the visitor's email app
- *  or clipboard — it is never silently lost. */
-const FORM_ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? "";
+/** The Pages Function relays to Owlsey Console using a server-side product key. */
+const FORM_ENDPOINT = "/api/contact";
 const CONTACT_EMAIL = "hello@owlsey.com";
 
 type Brief = {
@@ -96,6 +94,7 @@ export default function ContactContent() {
   const [copied, setCopied] = useState(false);
   const directionRef = useRef<HTMLDivElement>(null);
   const directionButtonRef = useRef<HTMLButtonElement>(null);
+  const submissionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const closeOnOutsidePress = (event: PointerEvent) => {
@@ -138,10 +137,17 @@ export default function ContactContent() {
     if (FORM_ENDPOINT) {
       setStatus("sending");
       try {
+        submissionIdRef.current ??= crypto.randomUUID();
+        const params = new URLSearchParams(window.location.search);
+        const attribution = Object.fromEntries(
+          ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]
+            .map((key) => [key, params.get(key)?.slice(0, 100) ?? ""])
+            .filter(([, value]) => value),
+        );
         const response = await fetch(FORM_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ ...next, subject: `Project enquiry from ${next.name}` }),
+          body: JSON.stringify({ ...next, submissionId: submissionIdRef.current, attribution }),
         });
         if (response.ok) {
           setStatus("sent");

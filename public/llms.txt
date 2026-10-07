@@ -43,6 +43,10 @@
 
 - [Home](https://owlsey.com/): what Owlsey builds, how it works, selected work and FAQ
 - [Services](https://owlsey.com/services): custom platforms, internal tools, integrations and delivery
+  - [Custom software development in Surat](https://owlsey.com/services/custom-software-development)
+  - [Web application development](https://owlsey.com/services/web-application-development)
+  - [SaaS product development](https://owlsey.com/services/saas-development)
+  - [Internal tools & custom ERP](https://owlsey.com/services/internal-tools-development)
 - [Projects](https://owlsey.com/projects): case studies and Owlsey's own products
 - [About](https://owlsey.com/about): who Owlsey is, where it is based and how it works
 - [Process & experience](https://owlsey.com/experience): how a project runs from brief to release

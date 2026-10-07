@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { PROJECT_CASES } from "@/data/projectCases";
+import { SERVICE_PAGES } from "@/data/servicePages";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
@@ -319,6 +320,33 @@ export default function ServicesContent() {
                     </p>
                   </div>
                 </article>
+              ))}
+            </div>
+          </section>
+
+          {/* Each service in depth — the pages people land on from search. */}
+          <section className="chapter-obsidian experience-chapter" data-chapter="In depth" aria-labelledby="service-pages-title">
+            <div className="modular-grid about-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
+
+              <div className="modular-box about-head md:col-span-2 lg:col-span-4 flex flex-col justify-between">
+                <p className="display-kicker text-[color:var(--text-dim)]">Services in depth</p>
+                <h2 id="service-pages-title" className="modular-display max-w-[16ch] text-[clamp(2.6rem,4.4vw,4.6rem)] text-[color:var(--text-strong)]">
+                  Pick what you <span className="services-accent-word">need</span><span className="accent-stop">.</span>
+                </h2>
+              </div>
+
+              {SERVICE_PAGES.filter((page) => !page.parent).map((page, index) => (
+                <Link key={page.slug} href={`/services/${page.slug}`} data-cursor="VIEW" className="modular-box about-card about-card--short group flex flex-col justify-between">
+                  <span className="modular-copy text-[color:var(--services-accent-soft)]">.0{index + 1}</span>
+                  <div>
+                    <h3 className="modular-display text-[clamp(1.9rem,2.8vw,2.7rem)] text-[color:var(--text-strong)]">{page.name}</h3>
+                    <p className="mt-3 max-w-[32ch] text-sm leading-6 text-[color:var(--text-muted)] line-clamp-3">{page.metaDescription}</p>
+                    <span className="service-card-link">
+                      Learn more <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </section>

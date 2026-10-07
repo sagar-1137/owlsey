@@ -1,4 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Owlsey website
+
+The site is a static Next.js export deployed to Cloudflare Pages. The contact form posts to
+`/api/contact`, implemented by `functions/api/contact.js`. That Pages Function validates the
+brief and sends it to Owlsey Console's public lead endpoint. The Console product key stays in
+the Pages runtime secret and is never included in the browser bundle.
+
+Before enabling live enquiries, create the Owlsey.com scope in Console and issue its product
+API key. Set `OWLSEY_CONSOLE_API_URL` to the Console API origin and
+`OWLSEY_CONSOLE_PRODUCT_KEY` as an encrypted Pages secret for production and preview as needed.
+Deploy after setting them. If the relay is unavailable, the form gives the visitor an email or
+clipboard handoff instead of claiming the enquiry was saved.
+
+Local `next dev` serves the static site but does not run Pages Functions. Use
+`wrangler pages dev out` after `npm run build` to test the relay with local `.dev.vars`
+credentials; keep that file untracked.
 
 ## Getting Started
 

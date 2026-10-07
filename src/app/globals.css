@@ -9202,8 +9202,10 @@ html.js [data-hero-eyebrow-tick] {
   min-height: 15rem;
 }
 
-.about-lead > *,
-.about-cta > * {
+/* Lift content above the cell's motif — but never the motif itself, which
+   must stay absolutely positioned in its corner. */
+.about-lead > :not(.pattern),
+.about-cta > :not(.pattern) {
   position: relative;
   z-index: 1;
 }
@@ -9286,4 +9288,151 @@ html.js [data-hero-eyebrow-tick] {
     grid-template-columns: 1fr;
     gap: 0.3rem;
   }
+}
+
+/* ── Service landing pages ─────────────────────────────────────────────── */
+.service-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.service-breadcrumb a {
+  color: var(--text-dim);
+  transition: color 200ms ease;
+}
+
+.service-breadcrumb a:hover,
+.service-breadcrumb [aria-current="page"] {
+  color: var(--text-strong);
+}
+
+.about-card--short {
+  min-height: 15rem;
+}
+
+.service-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.service-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+}
+
+.service-projects a {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem 2.25rem 1.25rem 0;
+  transition: background-color 200ms ease;
+}
+
+.service-projects strong {
+  font-family: var(--font-impact);
+  font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--text-strong);
+}
+
+.service-projects svg {
+  position: absolute;
+  top: 1.25rem;
+  right: 0.75rem;
+  color: var(--text-strong);
+}
+
+.service-faq details {
+  border-top: 1px solid var(--line-strong);
+}
+
+.service-faq details:last-child {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.service-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 1rem;
+  color: var(--text-strong);
+}
+
+.service-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.service-faq summary:focus-visible {
+  outline: 1px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.service-faq summary svg {
+  transition: transform 200ms ease;
+}
+
+.service-faq details[open] summary svg {
+  transform: rotate(45deg);
+}
+
+.service-faq p {
+  max-width: 60ch;
+  padding: 0 0 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.service-others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.service-others a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--line-strong);
+  padding: 0.7rem 1rem;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-body);
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.service-others a:hover {
+  border-color: var(--accent-strong);
+  color: var(--text-strong);
 }

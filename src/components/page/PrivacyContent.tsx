@@ -10,6 +10,10 @@ const PRIVACY_CLAUSES = [
     body: "We collect the details you choose to share with us: project context, contact information, brief material, email conversations, and files needed to understand a requirement.",
   },
   {
+    title: "Enquiry source and security",
+    body: "When you send a contact form, we record the submission time, request identifier, source page, campaign details, referring page without its query parameters, browser information and approximate country. We use a keyed hash of the network address to help identify repeated abuse; we do not store the raw IP address in the enquiry. Browser and referring-page information may be inaccurate. Security details are restricted to authorised administrators and retained with the enquiry only while needed for response and abuse investigation.",
+  },
+  {
     title: "How we use it",
     body: "We use that information to respond to enquiries, shape recommendations, prepare estimates, deliver agreed work, and support systems after launch.",
   },
@@ -47,7 +51,7 @@ export default function PrivacyContent() {
       title="Privacy"
       accent="handled"
       summary="We collect only the context needed to understand, recommend, build, and support useful software."
-      updated="June 15, 2026"
+      updated="October 7, 2026"
       primaryNote="Client context stays tied to the work. We do not turn project information into a marketing asset without permission."
       supportNote="Your context is used to build the right system, not to create noise."
       clauses={PRIVACY_CLAUSES}

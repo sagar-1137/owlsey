@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Target } from "lucide-react";
 import { MagneticGsap } from "@/components/common/MagneticGsap";
 
@@ -81,7 +82,7 @@ export const HeroContentCells: React.FC<HeroContentCellsProps> = ({
         </div>
       </div>
 
-      <a href="/services" data-cursor="VIEW" data-motion-link className="longbow-hero-route group" {...reveal}>
+      <Link href="/services" data-cursor="VIEW" data-motion-link className="longbow-hero-route group" {...reveal}>
         <span className="pattern pattern--cross pattern--tr" aria-hidden="true" />
         <p className="display-kicker text-[color:var(--text-faint)]">Start simple</p>
         <div className="mt-auto">
@@ -95,7 +96,7 @@ export const HeroContentCells: React.FC<HeroContentCellsProps> = ({
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
           </div>
         </div>
-      </a>
+      </Link>
     </>
   );
 };

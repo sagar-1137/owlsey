@@ -9,6 +9,7 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Framework, deployment, test, and local-tool output.
     ".next/**",
+    ".next-dev/**",
     "out/**",
     "build/**",
     "dist/**",

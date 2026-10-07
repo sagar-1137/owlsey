@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { MetadataRoute } from "next";
 import { PROJECT_CASES } from "@/data/projectCases";
+import { SERVICE_PAGES } from "@/data/servicePages";
 
 const BASE_URL = "https://owlsey.com";
 
@@ -59,5 +60,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...(project.image && !project.confidential ? { images: [`${BASE_URL}${project.image}`] } : {}),
   }));
 
-  return [...staticEntries, ...projectEntries];
+  const servicesModified = lastCommit(
+    "src/data/servicePages.ts",
+    "src/app/services/[slug]",
+    "src/components/page/ServiceDetailContent.tsx",
+  );
+  const serviceEntries: MetadataRoute.Sitemap = SERVICE_PAGES.map((page) => ({
+    url: `${BASE_URL}/services/${page.slug}`,
+    lastModified: servicesModified,
+  }));
+
+  return [...staticEntries, ...serviceEntries, ...projectEntries];
 }
