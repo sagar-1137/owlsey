@@ -12,13 +12,14 @@ const FOOTER_LINKS = [
   { label: "What we build", href: "/services" },
   { label: "Selected systems", href: "/projects" },
   { label: "How we deliver", href: "/experience" },
-  { label: "Why Owlsey", href: "/" },
+  { label: "Questions & answers", href: "/#faq" },
   { label: "Open a brief", href: "/contact" },
 ];
 
 const FOOTER_LEGAL_LINKS = [
   { label: "Privacy policy", href: "/privacy" },
   { label: "Terms of service", href: "/terms" },
+  { label: "Cookies", href: "/cookies" },
 ];
 
 /* Brand glyphs are inline paths — lucide dropped its brand set, and the right
@@ -267,7 +268,7 @@ export const Footer: React.FC = () => {
                 <Clock className="h-3.5 w-3.5" strokeWidth={1.5} />
               </span>
               <p className="mt-4 display-kicker text-[color:var(--text-faint)]">Response time</p>
-              <p className="footer-contact-value mt-1 text-[color:var(--text-body)]">Within one business day.</p>
+              <p className="footer-contact-value mt-1 text-[color:var(--text-body)]">Within three business days.</p>
             </div>
           </div>
         </div>

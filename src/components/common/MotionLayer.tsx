@@ -147,6 +147,10 @@ export const MotionLayer = () => {
 
     const ctx = gsap.context(() => {
       document.querySelectorAll<HTMLElement>("[data-chapter]").forEach((chapter) => {
+        // Sections that choreograph their own scroll timeline opt out
+        // entirely; layering this generic split/parallax on top of a scrubbed
+        // reveal fights it (the split rebuilds the heading the timeline owns).
+        if (chapter.hasAttribute("data-motion-own")) return;
         const headings = chapter.querySelectorAll<HTMLElement>(".modular-display");
         if (headings.length) {
           ScrollTrigger.create({

@@ -19,6 +19,15 @@ export type StoredConsent = {
 
 /** Bump when the consent schema/policy changes so we can re-prompt users. */
 export const CONSENT_VERSION = 1;
+
+/**
+ * Whether the site currently runs anything that needs consent (analytics,
+ * pixels, embeds that set cookies). Today it does not — only strictly
+ * necessary storage — so the consent banner stays hidden and the site leads
+ * with "we don't track you". Flip to true in the same change that adds an
+ * optional script, and the banner returns for every visitor without a choice.
+ */
+export const OPTIONAL_COOKIES_IN_USE = false;
 const STORAGE_KEY = "owlsey:cookie-consent";
 
 /** Fired on the window whenever consent is saved, so listeners (e.g. an

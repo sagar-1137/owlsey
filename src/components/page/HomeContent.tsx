@@ -4,6 +4,15 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HomeIntro } from "@/components/sections/HomeIntro";
 import { ChapterRoute } from "@/components/sections/ChapterRoute";
+import { StatsBar } from "@/components/sections/StatsBar";
+import { Projects } from "@/components/sections/Projects";
+import { ClosingCta } from "@/components/sections/ClosingCta";
+import { Faq } from "@/components/sections/Faq";
+import { OwnProducts } from "@/components/sections/OwnProducts";
+import { Industries } from "@/components/sections/Industries";
+import { StackStrip } from "@/components/sections/StackStrip";
+import { ProofStrip } from "@/components/sections/ProofStrip";
+import { Testimonials } from "@/components/sections/Testimonials";
 
 export default function HomeContent() {
   return (
@@ -14,13 +23,20 @@ export default function HomeContent() {
         <HomeIntro />
         <Navbar />
         <main>
+          <ProofStrip />
+          {/* Narrative: method → how we engage → capabilities → proof (client
+              work, our own products, sectors shipped) → the stack as a compact
+              band → questions → the closing invitation. Only the method and
+              capabilities chapters still pin; everything after scrolls freely. */}
           <ChapterRoute
+            id="process"
             eyebrow="From brief to release"
             lines={["ONE CLEAR", "ROUTE."]}
             points={["Understand the requirement", "Shape the right system", "Build useful releases", "Evolve after launch"]}
-            target="capabilities"
+            target="method"
             align="left"
           />
+          <StatsBar />
           <ChapterRoute
             eyebrow="Software shaped around the work"
             lines={["CUSTOM SOFTWARE,", "BUILT TO FIT."]}
@@ -38,36 +54,13 @@ export default function HomeContent() {
             tone="graphite"
             align="center"
           />
-          <ChapterRoute
-            eyebrow="Custom by default"
-            lines={["SYSTEMS", "THAT FIT."]}
-            points={[
-              "Core product",
-              "Internal systems",
-              "Automation",
-              "Cloud & intelligence",
-            ]}
-            target="tech-stack"
-            tone="ink"
-            align="right"
-          />
-          <ChapterRoute
-            eyebrow="Engineering stack"
-            lines={["THE STACK", "WE TRUST."]}
-            points={[
-              "React & Next.js",
-              "TypeScript & Go",
-              "Node & Python",
-              "Flutter & Mobile",
-              "Postgres & Supabase",
-              "Redis & MongoDB",
-              "OpenAI & Claude",
-              "AWS & Docker",
-            ]}
-            target="footer"
-            tone="graphite"
-            align="center"
-          />
+          <Projects />
+          <OwnProducts />
+          <Industries />
+          <Testimonials />
+          <StackStrip />
+          <Faq />
+          <ClosingCta />
         </main>
         <Footer />
       </div>

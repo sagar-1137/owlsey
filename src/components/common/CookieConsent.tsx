@@ -11,6 +11,7 @@ import {
   readConsent,
   saveConsent,
   CONSENT_EVENT,
+  OPTIONAL_COOKIES_IN_USE,
 } from "@/lib/cookieConsent";
 
 /** Subscribe to consent changes so the banner reacts without a reload. */
@@ -27,6 +28,10 @@ function subscribe(callback: () => void) {
 const hasConsent = () => readConsent() !== null;
 
 type OptionalCategory = "analytics" | "preferences";
+
+/** Dispatch on window to reopen the panel in "customize" mode — used by the
+ *  Cookie Policy page so a visitor can change a choice already made. */
+export const OPEN_COOKIE_SETTINGS = "owlsey:open-cookie-settings";
 
 const CATEGORIES: {
   id: OptionalCategory;
@@ -55,13 +60,34 @@ export const CookieConsent: React.FC = () => {
   const [dismissed, setDismissed] = useState(false);
   const [presentationReady, setPresentationReady] = useState(false);
   const [customizing, setCustomizing] = useState(false);
+  // Set when the visitor reopens settings after already choosing.
+  const [reopened, setReopened] = useState(false);
   const [prefs, setPrefs] = useState<Record<OptionalCategory, boolean>>({
     analytics: false,
     preferences: false,
   });
 
   const panelRef = useRef<HTMLDivElement>(null);
-  const visible = presentationReady && !consented && !dismissed;
+  // Unprompted, the banner only appears when something optional actually
+  // runs; the Cookie Policy page can still open it on request.
+  const visible =
+    presentationReady && ((OPTIONAL_COOKIES_IN_USE && !consented) || reopened) && !dismissed;
+
+  useEffect(() => {
+    const onOpen = () => {
+      const stored = readConsent();
+      setPrefs({
+        analytics: stored?.categories.analytics ?? false,
+        preferences: stored?.categories.preferences ?? false,
+      });
+      setCustomizing(true);
+      setDismissed(false);
+      setReopened(true);
+      setPresentationReady(true);
+    };
+    window.addEventListener(OPEN_COOKIE_SETTINGS, onOpen);
+    return () => window.removeEventListener(OPEN_COOKIE_SETTINGS, onOpen);
+  }, []);
 
   // Keep the opening view clear on every route. The panel appears only after
   // the visitor has meaningfully entered the page; on the homepage it also
@@ -133,6 +159,7 @@ export const CookieConsent: React.FC = () => {
     const panel = panelRef.current;
     if (prefersReducedMotion || !panel) {
       setDismissed(true);
+      setReopened(false);
       action();
       return;
     }
@@ -144,6 +171,7 @@ export const CookieConsent: React.FC = () => {
       ease: "power3.in",
       onComplete: () => {
         setDismissed(true);
+        setReopened(false);
         // Persist after the panel has left so the store update doesn't
         // yank it out mid-animation.
         action();

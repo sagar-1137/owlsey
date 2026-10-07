@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Mouse } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Mouse } from "lucide-react";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { HeroContentCells } from "@/components/sections/HeroContentCells";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
@@ -26,7 +27,7 @@ export const HomeIntro: React.FC = () => {
       const navigation = document.querySelector<HTMLElement>(".owlsey-nav-fixed");
       if (navigation) {
         navigation.style.opacity = "1";
-        navigation.style.transform = "translateX(-50%)";
+        navigation.style.transform = "none";
       }
       window.dispatchEvent(new Event("owlsey:intro-ready"));
       return;
@@ -336,7 +337,8 @@ export const HomeIntro: React.FC = () => {
       aria-label="Owlsey introduction"
     >
       <div className="home-intro-stage" data-intro-stage>
-        <TechnicalGrid className="home-intro-grid" data-intro-frame />
+        {/* Fixed blueprint: the travel timeline draws these exact rails. */}
+        <TechnicalGrid measure={false} className="home-intro-grid" data-intro-frame />
 
         {/* The resolved grid's top row holds only the statement's landing slot,
             centred in columns 2–3. It is empty and invisible — a measurement
@@ -370,8 +372,24 @@ export const HomeIntro: React.FC = () => {
         <div className="home-intro-cells" data-intro-cells aria-hidden="true">
           <HeroContentCells revealAttr="data-intro-cell" />
         </div>
+        {/* The first screen has to say what we do and offer a next step before
+            asking for a scroll. It hides with the scroll cue once the
+            headline starts travelling; the resolved grid then carries the CTA. */}
         <div className="home-intro-scroll" data-intro-scroll>
-          <span>Scroll to shape the system</span>
+          <p className="home-intro-pitch">
+            Custom web apps, mobile products, and internal tools for growing
+            businesses — scoped clearly, built properly, supported after launch.
+          </p>
+          <div className="home-intro-actions">
+            <Link href="/contact" data-cursor="START" className="home-intro-action home-intro-action--primary">
+              Start a project
+              <ArrowRight aria-hidden="true" />
+            </Link>
+            <Link href="/projects" data-cursor="VIEW" className="home-intro-action">
+              See our work
+            </Link>
+          </div>
+          <span>Scroll to explore</span>
           <span className="home-intro-scroll-mouse" aria-hidden="true">
             <Mouse />
           </span>

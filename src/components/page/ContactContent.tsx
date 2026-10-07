@@ -7,13 +7,15 @@ import {
   Check,
   ChevronDown,
   Clock,
+  Copy,
   Crosshair,
+  FileSignature,
   FileText,
   Flag,
-  LayoutGrid,
   Mail,
   MessageSquare,
   Paperclip,
+  PhoneCall,
   Sparkles,
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
@@ -29,14 +31,51 @@ const PROJECT_TYPES = [
   "Not sure yet",
 ];
 
-/* The enquiry runs as a real four-stage sequence, so the tracker is ordered
-   and the first stage is the one the visitor is on. */
+/* What actually happens after "send", in order — the first stage is the one
+   the visitor is on. Every promise here is a confirmed one. */
 const BRIEF_STEPS = [
-  { label: "Describe", Icon: FileText },
-  { label: "Review", Icon: LayoutGrid },
-  { label: "Clarify", Icon: MessageSquare },
-  { label: "Deliver", Icon: Check },
+  { label: "Send a brief", note: "Today", Icon: FileText },
+  { label: "Considered reply", note: "Within 3 business days", Icon: MessageSquare },
+  { label: "Discovery call", note: "Free", Icon: PhoneCall },
+  { label: "Scope + estimate", note: "Written, fixed", Icon: FileSignature },
 ];
+
+/* Optional qualifiers. Chips, not dropdowns: one tap, and "not sure" is a
+   first-class answer so nobody is blocked by them. */
+const BUDGETS = ["Under ₹5L", "₹5–15L", "₹15–40L", "₹40L+", "Not sure yet"];
+const TIMELINES = ["As soon as possible", "1–3 months", "3–6 months", "Flexible"];
+
+const TRUST_POINTS = ["NDA on request", "Code & IP are yours", "Free discovery"];
+
+/** Set to a form service URL (Web3Forms, Formspree, a Pages Function…) to send
+ *  briefs directly. Without it, the brief is handed to the visitor's email app
+ *  or clipboard — it is never silently lost. */
+const FORM_ENDPOINT = process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? "";
+const CONTACT_EMAIL = "hello@owlsey.com";
+
+type Brief = {
+  name: string;
+  email: string;
+  company: string;
+  direction: string;
+  budget: string;
+  timeline: string;
+  context: string;
+};
+
+/** The brief as plain text — used for the email draft and the clipboard. */
+const briefText = (brief: Brief) => {
+  const lines = [`Name: ${brief.name}`, `Email: ${brief.email}`];
+  if (brief.company) lines.push(`Company: ${brief.company}`);
+  lines.push(`Direction: ${brief.direction}`);
+  if (brief.budget) lines.push(`Budget: ${brief.budget}`);
+  if (brief.timeline) lines.push(`Timeline: ${brief.timeline}`);
+  lines.push("", "Context:", brief.context);
+  return lines.join("\n");
+};
+
+const mailtoFor = (brief: Brief) =>
+  `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Project enquiry from ${brief.name}`)}&body=${encodeURIComponent(briefText(brief))}`;
 
 const USEFUL_BRIEF = [
   { label: "Clear context", Icon: Crosshair },
@@ -50,6 +89,11 @@ export default function ContactContent() {
   const [projectType, setProjectType] = useState("");
   const [directionOpen, setDirectionOpen] = useState(false);
   const [directionError, setDirectionError] = useState(false);
+  const [budget, setBudget] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "ready">("idle");
+  const [brief, setBrief] = useState<Brief | null>(null);
+  const [copied, setCopied] = useState(false);
   const directionRef = useRef<HTMLDivElement>(null);
   const directionButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -69,7 +113,7 @@ export default function ContactContent() {
     };
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!projectType) {
       setDirectionError(true);
@@ -77,16 +121,48 @@ export default function ContactContent() {
       return;
     }
     const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") ?? "");
-    const email = String(form.get("email") ?? "");
-    const submittedProjectType = String(form.get("projectType") ?? "Not specified");
-    const context = String(form.get("context") ?? "");
-    const subject = encodeURIComponent(`Project enquiry from ${name}`);
-    const body = encodeURIComponent(
-      [`Name: ${name}`, `Email: ${email}`, `Direction: ${submittedProjectType}`, "", "Context:", context].join("\n")
-    );
+    // Honeypot: real visitors never see or fill this field.
+    if (String(form.get("website") ?? "")) return;
 
-    window.location.href = `mailto:hello@owlsey.com?subject=${subject}&body=${body}`;
+    const next: Brief = {
+      name: String(form.get("name") ?? "").trim(),
+      email: String(form.get("email") ?? "").trim(),
+      company: String(form.get("company") ?? "").trim(),
+      direction: projectType,
+      budget,
+      timeline,
+      context: String(form.get("context") ?? "").trim(),
+    };
+    setBrief(next);
+
+    if (FORM_ENDPOINT) {
+      setStatus("sending");
+      try {
+        const response = await fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ ...next, subject: `Project enquiry from ${next.name}` }),
+        });
+        if (response.ok) {
+          setStatus("sent");
+          return;
+        }
+      } catch {
+        // Fall through to the hand-off below — the brief must not be lost.
+      }
+    }
+    setStatus("ready");
+  };
+
+  const copyBrief = async () => {
+    if (!brief) return;
+    try {
+      await navigator.clipboard.writeText(briefText(brief));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2500);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (
@@ -121,12 +197,13 @@ export default function ContactContent() {
                   <p className="mx-auto mt-4 max-w-[44ch] text-sm leading-6 text-[color:var(--text-muted)]">Tell us the goal, the context, and the constraints. We will take it from <span className="contact-inline-accent">there</span>.</p>
                 </div>
                 <ol className="contact-brief-steps" aria-label="Enquiry process">
-                  {BRIEF_STEPS.map(({ label, Icon }, index) => (
+                  {BRIEF_STEPS.map(({ label, note, Icon }, index) => (
                     <li key={label} data-active={index === 0 ? "true" : undefined}>
                       <span className="step-icon" aria-hidden>
                         <Icon className="h-4 w-4" strokeWidth={1.5} />
                       </span>
                       <strong>{label}</strong>
+                      <small className="step-note">{note}</small>
                     </li>
                   ))}
                 </ol>
@@ -174,8 +251,51 @@ export default function ContactContent() {
                 </div>
               </a>
 
-              <form data-contact-cell data-motion-static className="modular-box contact-panel-form" onSubmit={handleSubmit}>
+              <form data-contact-cell data-motion-static className="modular-box contact-panel-form" onSubmit={handleSubmit} aria-live="polite">
+                {status === "sent" || status === "ready" ? (
+                  <div className="contact-done">
+                    <span className="contact-done-icon" aria-hidden="true">
+                      <Check className="h-5 w-5" strokeWidth={1.75} />
+                    </span>
+                    {status === "sent" ? (
+                      <>
+                        <p className="contact-done-title">Brief received.</p>
+                        <p className="contact-done-text">
+                          Thanks{brief?.name ? `, ${brief.name.split(" ")[0]}` : ""}. You&apos;ll hear back within three business days at {brief?.email}.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="contact-done-title">Your brief is ready.</p>
+                        <p className="contact-done-text">
+                          Send it from your email app, or copy it and send it to {CONTACT_EMAIL} from wherever you prefer.
+                        </p>
+                        <div className="contact-done-actions">
+                          {brief && (
+                            <a href={mailtoFor(brief)} data-cursor="SEND" className="contact-form-submit group">
+                              <span>Open email app</span>
+                              <Mail className="h-4 w-4" strokeWidth={1.5} />
+                            </a>
+                          )}
+                          <button type="button" onClick={copyBrief} data-cursor="COPY" className="contact-done-secondary">
+                            {copied ? <Check className="h-4 w-4" strokeWidth={1.75} /> : <Copy className="h-4 w-4" strokeWidth={1.5} />}
+                            <span>{copied ? "Copied" : "Copy brief"}</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    <button type="button" className="contact-done-reset" onClick={() => setStatus("idle")}>
+                      Edit brief
+                    </button>
+                  </div>
+                ) : (
+                <>
                 <div className="contact-form-fields contact-form-fields--boxed">
+                  {/* Honeypot — hidden from people and assistive tech. */}
+                  <label className="contact-honeypot" aria-hidden="true">
+                    Website
+                    <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+                  </label>
                   <label className="contact-compact-field">
                     <span>Name *</span>
                     <input name="name" type="text" autoComplete="name" placeholder="Your name" maxLength={80} required />
@@ -183,6 +303,10 @@ export default function ContactContent() {
                   <label className="contact-compact-field">
                     <span>Work email *</span>
                     <input name="email" type="email" autoComplete="email" placeholder="name@company.com" maxLength={160} required />
+                  </label>
+                  <label className="contact-compact-field contact-compact-field--wide">
+                    <span>Company</span>
+                    <input name="company" type="text" autoComplete="organization" placeholder="Optional" maxLength={120} />
                   </label>
                   <div className="contact-compact-field contact-compact-field--wide">
                     <span id="contact-direction-label">Direction *</span>
@@ -231,6 +355,26 @@ export default function ContactContent() {
                     </div>
                     {directionError && <small className="contact-field-error">Select a project direction.</small>}
                   </div>
+                  <fieldset className="contact-compact-field contact-compact-field--wide contact-chips">
+                    <legend>Budget</legend>
+                    <div role="radiogroup" aria-label="Budget">
+                      {BUDGETS.map((option) => (
+                        <button key={option} type="button" role="radio" aria-checked={budget === option} onClick={() => setBudget(budget === option ? "" : option)}>
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <fieldset className="contact-compact-field contact-compact-field--wide contact-chips">
+                    <legend>Timeline</legend>
+                    <div role="radiogroup" aria-label="Timeline">
+                      {TIMELINES.map((option) => (
+                        <button key={option} type="button" role="radio" aria-checked={timeline === option} onClick={() => setTimeline(timeline === option ? "" : option)}>
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
                   <label className="contact-compact-field contact-compact-field--wide contact-compact-message">
                     <span>Context *</span>
                     <span className="contact-message-wrap">
@@ -240,11 +384,21 @@ export default function ContactContent() {
                   </label>
                 </div>
                 <div className="contact-form-actions">
-                  <button type="submit" data-cursor="SEND" className="contact-form-submit group">
-                    <span>Open email draft</span>
+                  <ul className="contact-trust" aria-label="What you can count on">
+                    {TRUST_POINTS.map((point) => (
+                      <li key={point}>
+                        <Check className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                  <button type="submit" data-cursor="SEND" className="contact-form-submit group" disabled={status === "sending"}>
+                    <span>{status === "sending" ? "Sending…" : "Send brief"}</span>
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
                 </div>
+                </>
+                )}
               </form>
 
               <article data-contact-cell className="modular-box modular-box-dark contact-panel-response flex flex-col justify-between">
@@ -254,12 +408,12 @@ export default function ContactContent() {
                 </div>
                 <div>
                   <p className="modular-display max-w-[7ch] text-[clamp(3rem,4.3vw,5rem)] text-white">
-                    One business <span className="contact-accent-word">day</span><span className="accent-stop">.</span>
+                    Three business <span className="contact-accent-word">days</span><span className="accent-stop">.</span>
                   </p>
-                  <p className="mt-5 max-w-[26ch] text-sm leading-6 text-white/70">Direct. Practical. No fluff. You will hear back within one business day.</p>
+                  <p className="mt-5 max-w-[26ch] text-sm leading-6 text-white/70">Direct. Practical. No fluff. You will hear back within three business days — with a considered answer.</p>
                   <p className="contact-response-chip mt-6">
                     <Clock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
-                    We value clarity over size.
+                    Small or large — every brief gets a real reply.
                   </p>
                 </div>
               </article>

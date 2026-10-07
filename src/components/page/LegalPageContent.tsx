@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowUpRight, FileText, LockKeyhole, Mail, Scale, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Cookie, FileText, LockKeyhole, Mail, Scale, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { OPEN_COOKIE_SETTINGS } from "@/components/common/CookieConsent";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
@@ -17,7 +18,7 @@ type LegalClause = {
 };
 
 type LegalPageContentProps = {
-  kind: "privacy" | "terms";
+  kind: "privacy" | "terms" | "cookies";
   eyebrow: string;
   title: string;
   accent: string;
@@ -86,7 +87,7 @@ export function LegalPageContent({
       <div className="modular-shell palette-white legal-shell w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>
-          <section className="chapter-obsidian legal-chapter" data-chapter={kind === "privacy" ? "Privacy" : "Terms"} aria-labelledby="legal-title">
+          <section className="chapter-obsidian legal-chapter" data-chapter={kind === "privacy" ? "Privacy" : kind === "cookies" ? "Cookies" : "Terms"} aria-labelledby="legal-title">
             <div className="modular-grid legal-hero-grid modular-grid--viewport technical-grid-host">
               <TechnicalGrid className="section-technical-grid" />
 
@@ -97,7 +98,13 @@ export function LegalPageContent({
                 </div>
                 <div>
                   <span className="ring-icon mb-7" aria-hidden="true">
-                    {kind === "privacy" ? <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Scale className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                    {kind === "privacy" ? (
+                      <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    ) : kind === "cookies" ? (
+                      <Cookie className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    ) : (
+                      <Scale className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    )}
                   </span>
                   <h1 id="legal-title" className="modular-display max-w-[9ch] text-[clamp(3.8rem,7vw,7.2rem)] text-[color:var(--text-strong)]">
                     {title} <span className="legal-accent-word">{accent}</span><span className="accent-stop">.</span>
@@ -116,21 +123,46 @@ export function LegalPageContent({
                 </div>
               </div>
 
-              <Link href="/contact" data-cursor="CONTACT" data-motion-link data-legal-cell className="modular-box modular-box-dark legal-contact group flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <p className="display-kicker text-white/60">Need clarity?</p>
-                  <ArrowUpRight className="h-4 w-4 text-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
-                </div>
-                <div>
-                  <p className="modular-display max-w-[7ch] text-[clamp(2.8rem,4.8vw,5.1rem)] text-white">
-                    Ask before <span className="legal-accent-word">signing</span><span className="accent-stop">.</span>
-                  </p>
-                  <div className="mt-7 flex items-center justify-between border-t border-white/15 pt-4">
-                    <span className="display-kicker text-white/65">Contact Owlsey</span>
-                    <Mail className="h-4 w-4 text-white transition-transform duration-300 group-hover:translate-x-1" />
+              {kind === "cookies" ? (
+                /* The cookie page's action is the setting itself, not a contact. */
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_SETTINGS))}
+                  data-cursor="OPEN"
+                  data-legal-cell
+                  className="modular-box modular-box-dark legal-contact group flex flex-col justify-between text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="display-kicker text-white/60">Your choice</p>
+                    <SlidersHorizontal className="h-4 w-4 text-white" strokeWidth={1.5} />
                   </div>
-                </div>
-              </Link>
+                  <div>
+                    <p className="modular-display max-w-[7ch] text-[clamp(2.8rem,4.8vw,5.1rem)] text-white">
+                      Change <span className="legal-accent-word">settings</span><span className="accent-stop">.</span>
+                    </p>
+                    <div className="mt-7 flex items-center justify-between border-t border-white/15 pt-4">
+                      <span className="display-kicker text-white/65">Manage cookie settings</span>
+                      <ArrowUpRight className="h-4 w-4 text-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <Link href="/contact" data-cursor="CONTACT" data-motion-link data-legal-cell className="modular-box modular-box-dark legal-contact group flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <p className="display-kicker text-white/60">Need clarity?</p>
+                    <ArrowUpRight className="h-4 w-4 text-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                  </div>
+                  <div>
+                    <p className="modular-display max-w-[7ch] text-[clamp(2.8rem,4.8vw,5.1rem)] text-white">
+                      Ask before <span className="legal-accent-word">signing</span><span className="accent-stop">.</span>
+                    </p>
+                    <div className="mt-7 flex items-center justify-between border-t border-white/15 pt-4">
+                      <span className="display-kicker text-white/65">Contact Owlsey</span>
+                      <Mail className="h-4 w-4 text-white transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </Link>
+              )}
 
               <div data-legal-cell className="modular-box legal-position flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-faint)]">Our position</p>

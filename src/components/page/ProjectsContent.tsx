@@ -28,10 +28,21 @@ const SIGNALS = [
 ];
 
 const PROJECT_ICONS = {
-  "order-control-system": Boxes,
-  "client-portal": Layers3,
-  "data-bridge": GitMerge,
-  "release-framework": Route,
+  "lakshita-commerce-os": Boxes,
+  veilguard: ShieldCheck,
+  mailproof: ListChecks,
+  barrierflow: Gauge,
+  gympro: Gauge,
+  "owlsey-console": Layers3,
+  "hr-project-workspace": Layers3,
+  "retention-panel": LineChart,
+  "crypto-gateway-docs": ListChecks,
+  "gaming-operator-guide": Route,
+  "sentinel-monitor": LineChart,
+  "commerce-sidecar": Boxes,
+  flowforge: GitMerge,
+  "telegram-ops": Route,
+  guidestack: Layers3,
 };
 
 export default function ProjectsContent() {
@@ -161,7 +172,7 @@ export default function ProjectsContent() {
 
           <section className="chapter-steel projects-chapter" data-chapter="Systems" aria-labelledby="selected-systems-title">
             <div className="modular-grid projects-range-grid modular-grid--viewport technical-grid-host">
-              <TechnicalGrid className="section-technical-grid" />
+              <TechnicalGrid className="section-technical-grid" rows={[25, 50, 75]} />
 
               <div data-projects-cell className="modular-box projects-range-head md:col-span-2 lg:col-span-2 flex flex-col justify-between">
                 <p className="display-kicker text-[color:var(--text-dim)]">Case patterns</p>
@@ -190,7 +201,7 @@ export default function ProjectsContent() {
                 </div>
               </Link>
 
-              {PROJECT_CASES.map(({ slug, index, label, title, summary, result, meta }) => {
+              {PROJECT_CASES.map(({ slug, index, label, title, summary, result, meta, confidential }) => {
                 const Icon = PROJECT_ICONS[slug as keyof typeof PROJECT_ICONS] ?? Boxes;
 
                 return (
@@ -202,7 +213,10 @@ export default function ProjectsContent() {
                         <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </span>
                     </div>
-                    <p className="mt-6 display-kicker text-[color:var(--text-faint)]">{label}</p>
+                    <p className="mt-6 flex flex-wrap items-center gap-3 display-kicker text-[color:var(--text-faint)]">
+                      {label}
+                      {confidential && <span className="nda-tag">Client · NDA</span>}
+                    </p>
                     <h3 className="modular-display mt-3 text-[clamp(2.05rem,3.45vw,3.55rem)] text-[color:var(--text-strong)]">
                       {title}
                     </h3>

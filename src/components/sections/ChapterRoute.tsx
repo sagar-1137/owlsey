@@ -38,22 +38,24 @@ type ChapterRouteProps = {
   target: string;
   tone?: "ink" | "graphite";
   align?: "left" | "right" | "center";
+  /** Anchor id for the scroll rail / deep links (e.g. "tech"). */
+  id?: string;
 };
 
 const defaultDetails: Record<string, string> = {
-  "Understand the requirement": "Unpacking business objectives, core user flows, and tech constraints to establish a resilient project blueprint.",
-  "Shape the right system": "Architecting modular software structures, defining scope boundaries, and selecting scalable technology stacks.",
-  "Build useful releases": "Iterative, production-grade engineering focused on solving core operational friction and delivering real utility.",
-  "Evolve after launch": "Proactive infrastructure monitoring, continuous performance optimization, and long-term feature expansion.",
+  "Understand the requirement": "We learn how your business runs, who will use the software, and what success looks like — before any code.",
+  "Shape the right system": "A written scope, clickable designs, and a fixed plan, so you know what you get, when, and for how much.",
+  "Build useful releases": "Each finished part is tested and handed to you for review as it is built, so changes surface early — not at the end.",
+  "Evolve after launch": "We stay on to fix, monitor, and improve, so the system grows with the business instead of aging.",
 
-  "Web applications": "High-performance web platforms engineered with responsive state management and resilient microservice backends.",
-  "Mobile products": "Native iOS and Android software crafted for fast offline capability, real-time data sync, and fluid touch experience.",
-  "Internal tools": "Custom operations dashboards, admin portals, and internal control systems built for team execution speed.",
-  "Connected systems": "Unified API integrations, high-throughput cloud data pipelines, and scalable third-party service mesh.",
-  "SaaS platforms": "Multi-tenant SaaS architectures built with subscription management, tenant isolation, and enterprise security.",
-  "AI & Data engines": "Custom LLM integrations, automated intelligent pipelines, predictive analytics, and vector search systems.",
-  "E-commerce & Fintech": "High-concurrency checkout systems, payment gateway integrations, fraud prevention, and ledger engines.",
-  "Cloud infrastructure": "Automated CI/CD deployment pipelines, Kubernetes cluster orchestration, and serverless auto-scaling.",
+  "Web applications": "Customer portals, booking systems, and business platforms that are fast, secure, and easy to use.",
+  "Mobile products": "iOS and Android apps your customers and field teams actually keep using, with offline support.",
+  "Internal tools": "Dashboards and admin panels that replace spreadsheets and manual handoffs across your team.",
+  "Connected systems": "Link your CRM, ERP, payments, and other tools so data moves without copy-paste.",
+  "SaaS platforms": "Subscription products with accounts, billing, and roles — ready to sell to many customers.",
+  "AI & Data engines": "AI assistants, document processing, and reports that turn your data into decisions.",
+  "E-commerce & Fintech": "Online stores, checkout, payment gateways, and ledgers built to handle real money safely.",
+  "Cloud infrastructure": "Reliable hosting, automatic deployments, and backups, so the software stays up as you grow.",
 
   "Core product": "Business platforms & customer software shaped around how your business actually works. Portals / SaaS / Customer systems.",
   "Internal systems": "Operations tools & workflow engines that replace repeated handoffs and spreadsheet work. Dashboards / Admin portals.",
@@ -207,6 +209,7 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
   target,
   tone = "ink",
   align = "left",
+  id,
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -220,11 +223,22 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
       const titleLines = root.querySelectorAll<HTMLElement>("[data-route-line]");
       const batch0Cards = root.querySelectorAll<HTMLElement>("[data-route-card][data-batch='0']");
       const batch1Cards = root.querySelectorAll<HTMLElement>("[data-route-card][data-batch='1']");
+      const eyebrowEl = root.querySelector<HTMLElement>("[data-route-eyebrow]");
       const heroSubEl = root.querySelector<HTMLElement>("[data-route-hero-sub]");
       const stage = root.querySelector<HTMLElement>("[data-route-stage]");
+      const isProcessChapter = id === "process";
 
       gsap.set(titleLines, { yPercent: 115 });
-      gsap.set(batch0Cards, { opacity: 0, y: 32, scale: 0.94 });
+      gsap.set(eyebrowEl, { opacity: 0, y: 14, letterSpacing: "0.28em" });
+      gsap.set(batch0Cards, {
+        opacity: 0,
+        y: 32,
+        scale: 0.96,
+        clipPath: isProcessChapter
+          ? "polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%)"
+          : "inset(0%)",
+        transformOrigin: "right bottom",
+      });
       gsap.set(batch1Cards, { opacity: 0, y: 32, scale: 0.94 });
 
       const timeline = gsap.timeline({
@@ -239,6 +253,13 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
 
       // Step 1: Title reveals and settles cleanly at top location (0.05 -> 0.28 scrub)
       timeline
+        .to(eyebrowEl, {
+          opacity: 1,
+          y: 0,
+          letterSpacing: "0.18em",
+          duration: 0.14,
+          ease: "power2.out",
+        }, 0)
         .to(titleLines, { yPercent: 0, stagger: 0.08, duration: 0.20, ease: "power3.out" }, 0.05)
         .to(heroSubEl, { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 0.22);
 
@@ -249,6 +270,7 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
           opacity: 1,
           y: 0,
           scale: 1,
+          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
           duration: 0.35,
           stagger: 0.06,
           ease: "power3.out",
@@ -291,8 +313,14 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
         }, 0.66);
       }
 
-      // Stage transition handoff
-      timeline.to(stage, { scale: 0.88, opacity: 0, filter: "none", duration: 0.22, ease: "power2.in" }, 0.84);
+      // No exit animation on the stage — deliberately. The intro→chapter
+      // boundary (the transition that reads as seamless) is a plain push:
+      // the resolved frame stays at full size until the next section slides
+      // up and takes over. The old handoff zoomed the pinned stage out to
+      // opacity 0 before the next section had even entered, leaving a blank
+      // viewport at every chapter boundary. Chapters now end the same way
+      // the intro does: fully legible, full size, switched by the scroll
+      // itself.
 
       const targetSection = document.querySelector<HTMLElement>(`[data-chapter-target="${target}"]`);
       if (targetSection && window.matchMedia("(min-width: 768px) and (pointer: fine)").matches) {
@@ -319,13 +347,14 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
     }, root);
 
     return () => ctx.revert();
-  }, [prefersReducedMotion, target]);
+  }, [id, prefersReducedMotion, target]);
 
   const heroFullTitle = lines.join(" ");
 
   return (
     <section
       ref={sectionRef}
+      id={id}
       className={[
         "chapter-route",
         `chapter-route--${tone}`,
@@ -335,12 +364,15 @@ export const ChapterRoute: React.FC<ChapterRouteProps> = ({
       aria-label={eyebrow}
     >
       <div className="chapter-route-stage" data-route-stage>
-        <TechnicalGrid className="chapter-route-technical-grid" />
+        <TechnicalGrid
+          className="chapter-route-technical-grid"
+          cellSelector=".chapter-route-hero-left, .chapter-route-card"
+        />
         
         {/* Left Hero Area (Columns 1 & 2) */}
         <div className="chapter-route-hero-left" data-route-hero-left>
           <div>
-            <p className="chapter-route-eyebrow">{eyebrow}</p>
+            <p className="chapter-route-eyebrow" data-route-eyebrow>{eyebrow}</p>
             <h2 className="chapter-route-title">
               {lines.map((line) => {
                 const hasDot = line.endsWith(".");

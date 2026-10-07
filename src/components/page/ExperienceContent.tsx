@@ -21,22 +21,22 @@ const PHASES = [
   {
     title: "Clarity",
     text: "We translate business intent into a clean technical shape before a line of code is written.",
-    metric: "2 weeks",
-    metricLabel: "discovery → blueprint",
+    metric: "Free",
+    metricLabel: "discovery → written scope",
     Icon: Compass,
   },
   {
     title: "Structure",
     text: "We choose architecture that survives scale, team growth, and the product changing shape.",
-    metric: "0 rewrites",
-    metricLabel: "in 3 years of delivery",
+    metric: "28+",
+    metricLabel: "projects delivered since 2020",
     Icon: Layers,
   },
   {
     title: "Results",
     text: "We stay accountable past launch — support, iteration, and steady performance refinement.",
-    metric: "< 24h",
-    metricLabel: "production response SLA",
+    metric: "Free",
+    metricLabel: "first months of support after launch",
     Icon: Route,
   },
 ];
@@ -132,10 +132,10 @@ export default function ExperienceContent() {
                 <p className="display-kicker text-[color:var(--text-faint)]">Why it holds</p>
                 <div>
                   <p className="modular-display max-w-[9ch] text-[clamp(2.8rem,4.6vw,5rem)] text-[color:var(--text-strong)]">
-                    Three years, <span className="experience-accent-word">zero</span> rewrites<span className="accent-stop">.</span>
+                    Building <span className="experience-accent-word">since</span> 2020<span className="accent-stop">.</span>
                   </p>
                   <p className="mt-6 max-w-[30ch] text-sm leading-6 text-[color:var(--text-muted)]">
-                    The right shape early is what lets a system grow instead of being rebuilt.
+                    28+ projects later, the habit holds: get the shape right early, so the system grows instead of being rebuilt.
                   </p>
                 </div>
               </div>

@@ -39,11 +39,6 @@ export const LoaderWrapper: React.FC = () => {
     setShow(false);
   }, []);
 
-  const handleReplay = useCallback(() => {
-    document.documentElement.classList.remove("owlsey-intro-seen");
-    setShow(true);
-  }, []);
-
   useEffect(() => {
     if (!show) return;
     // Lock scroll while the loader is up. `overflow` covers native scroll
@@ -66,17 +61,8 @@ export const LoaderWrapper: React.FC = () => {
     };
   }, [show, handleDone]);
 
-  if (!show) {
-    return (
-      <button
-        type="button"
-        onClick={handleReplay}
-        className="fixed right-[calc(var(--page-frame)+12px)] top-[calc(var(--page-frame)+12px)] z-[90] border border-white/20 bg-[#090e15]/90 px-4 py-2 font-mono text-[8px] uppercase tracking-[0.18em] text-white/70 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
-      >
-        Replay loader
-      </button>
-    );
-  }
+  // QA can still replay the intro with `?intro=1`; no visible control ships.
+  if (!show) return null;
 
   return (
     <div data-intro-overlay>

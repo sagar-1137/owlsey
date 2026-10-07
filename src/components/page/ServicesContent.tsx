@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useEffect, useRef } from "react";
 import {
   ArrowRight,
@@ -16,6 +17,7 @@ import {
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
+import { PROJECT_CASES } from "@/data/projectCases";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MOTION_CONFIG } from "@/lib/motionConfig";
@@ -35,6 +37,8 @@ const SERVICE_RANGE = [
     title: "Product platforms",
     body: "Customer portals, SaaS products, and business platforms shaped around your actual workflow.",
     meta: "Portals / SaaS / Web platforms",
+    // Real case studies that prove the service.
+    proof: ["gympro", "lakshita-commerce-os"],
     Icon: Blocks,
   },
   {
@@ -43,6 +47,8 @@ const SERVICE_RANGE = [
     title: "Internal tools",
     body: "Dashboards, admin panels, approval flows, and operational tools that remove repeated manual work.",
     meta: "Dashboards / Workflows / Admin",
+    // Real case studies that prove the service.
+    proof: ["hr-project-workspace", "owlsey-console"],
     Icon: LayoutDashboard,
   },
   {
@@ -51,6 +57,8 @@ const SERVICE_RANGE = [
     title: "Integrations",
     body: "APIs, automations, and data flows that make the tools you already use work as one system.",
     meta: "APIs / Data flows / Automation",
+    // Real case studies that prove the service.
+    proof: ["mailproof", "flowforge"],
     Icon: Workflow,
   },
   {
@@ -59,6 +67,8 @@ const SERVICE_RANGE = [
     title: "Architecture",
     body: "Technical direction, stack selection, releases, and support planned around long-term ownership.",
     meta: "Stack / Releases / Support",
+    // Real case studies that prove the service.
+    proof: ["veilguard", "sentinel-monitor"],
     Icon: GitBranch,
   },
 ];
@@ -280,7 +290,7 @@ export default function ServicesContent() {
                 </div>
               </a>
 
-              {SERVICE_RANGE.map(({ index, label, title, body, meta, Icon }) => (
+              {SERVICE_RANGE.map(({ index, label, title, body, meta, proof, Icon }) => (
                 <article key={title} data-services-cell className="modular-box services-capability-card flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-4">
@@ -297,6 +307,16 @@ export default function ServicesContent() {
                   </div>
                   <div className="mt-8 border-t border-[color:var(--line-subtle)] pt-4">
                     <p className="modular-copy text-[color:var(--text-faint)]">{meta}</p>
+                    <p className="services-proof">
+                      <span>See it in</span>
+                      {proof
+                        .flatMap((slug) => PROJECT_CASES.filter((project) => project.slug === slug))
+                        .map((project) => (
+                          <Link key={project.slug} href={`/projects/${project.slug}`} data-cursor="VIEW">
+                            {project.title}
+                          </Link>
+                        ))}
+                    </p>
                   </div>
                 </article>
               ))}

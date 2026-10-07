@@ -2,6 +2,7 @@
 
 import React from "react";
 import { LegalPageContent } from "@/components/page/LegalPageContent";
+import { ANALYTICS_ENABLED } from "@/components/common/Analytics";
 
 const PRIVACY_CLAUSES = [
   {
@@ -20,6 +21,14 @@ const PRIVACY_CLAUSES = [
     title: "Sharing",
     body: "We do not sell personal information. We may share limited information with trusted tools or service providers when it is required to deliver, secure, or maintain the work.",
   },
+  ...(ANALYTICS_ENABLED
+    ? [
+        {
+          title: "Site analytics",
+          body: "We count page visits with Cloudflare Web Analytics, which is cookie-less and does not identify visitors or follow them across sites.",
+        },
+      ]
+    : []),
   {
     title: "Retention",
     body: "We keep information only as long as needed for the enquiry, project, support relationship, legal requirement, or operational record.",

@@ -1,21 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import React, { useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, CircleDot, Layers3, Route, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { TechnicalGrid } from "@/components/common/TechnicalGrid";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
+import { ProjectIllustration } from "@/components/common/ProjectIllustration";
 import { ensureGsap, ScrollTrigger } from "@/lib/gsap";
-import type { ProjectCase } from "@/data/projectCases";
+import { PROJECT_CASES, type ProjectCase } from "@/data/projectCases";
 
 type ProjectDetailContentProps = {
   project: ProjectCase;
 };
 
+const typeLabel = (project: ProjectCase) =>
+  project.kind === "product" ? "Our product" : project.confidential ? "Client · NDA" : "Client project";
+
+/** The case's visual: the real screenshot when shareable, otherwise a schematic. */
+const CaseVisual: React.FC<{ project: ProjectCase; priority?: boolean; sizes: string }> = ({ project, priority, sizes }) =>
+  project.image ? (
+    <Image
+      src={project.image}
+      alt={`${project.title} — live product screenshot`}
+      width={1440}
+      height={900}
+      sizes={sizes}
+      priority={priority}
+    />
+  ) : (
+    <ProjectIllustration visual={project.visual} title={project.title} />
+  );
+
+/**
+ * One case-study template that every project fits: hero facts, a visual
+ * band (screenshot or illustration), the story in three beats, what was
+ * built, and the next case. All headings come from the project's own data,
+ * so no two pages read the same.
+ */
 export default function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const pageRef = useRef<HTMLDivElement>(null);
+  const index = PROJECT_CASES.findIndex((item) => item.slug === project.slug);
+  const next = PROJECT_CASES[(index + 1) % PROJECT_CASES.length];
+  // The headline is split into a plain lead and an accented tail; the accent
+  // stop supplies the full stop, so drop the one in the data.
+  const resultWords = project.result.replace(/\.$/, "").split(" ");
+  const liveHost = project.url?.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
   useEffect(() => {
     const root = pageRef.current;
@@ -23,27 +55,36 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
 
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
-      const cells = root.querySelectorAll<HTMLElement>("[data-project-detail-cell]");
-
+      const cells = root.querySelectorAll<HTMLElement>("[data-case-cell]");
       ScrollTrigger.batch(cells, {
-        start: "top 86%",
+        start: "top 88%",
         once: true,
         onEnter: (elements) => {
           const content = elements.flatMap((cell) => Array.from(cell.children));
           gsap.fromTo(
             content,
-            { opacity: 0, y: 14 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.72,
-              stagger: 0.035,
-              ease: "power4.out",
-              clearProps: "transform,opacity,filter",
-            }
+            { opacity: 0, y: 18 },
+            { opacity: 1, y: 0, duration: 0.8, stagger: 0.04, ease: "power4.out", clearProps: "transform,opacity" }
           );
         },
       });
+
+      // The visual band rises and un-scales as it enters, like a slide
+      // being placed — the one moment on the page that should feel physical.
+      const frame = root.querySelector<HTMLElement>("[data-case-frame]");
+      if (frame) {
+        gsap.fromTo(
+          frame,
+          { y: 60, scale: 0.94, clipPath: "inset(6% 4% 0% 4% round 18px)" },
+          {
+            y: 0,
+            scale: 1,
+            clipPath: "inset(0% 0% 0% 0% round 0px)",
+            ease: "none",
+            scrollTrigger: { trigger: frame, start: "top 95%", end: "top 35%", scrub: 0.8 },
+          }
+        );
+      }
     }, root);
 
     return () => ctx.revert();
@@ -55,161 +96,198 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
       <div className="modular-shell palette-white projects-shell w-full overflow-visible bg-[color:var(--surface-base)]">
         <Navbar />
         <main>
-          <section className="chapter-obsidian projects-chapter project-detail-chapter" data-chapter={project.label} aria-labelledby="project-detail-title">
-            <div className="modular-grid project-detail-hero-grid technical-grid-host">
+          {/* 1 — Hero: what it is, at a glance. */}
+          <section className="chapter-obsidian projects-chapter case-hero" data-chapter={project.label} data-motion-own aria-labelledby="case-title">
+            <div className="modular-grid case-hero-grid technical-grid-host">
               <TechnicalGrid className="section-technical-grid" />
 
-              <div data-project-detail-cell className="modular-box project-detail-lead flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <p className="display-kicker text-[color:var(--text-dim)]">Case / {project.label}</p>
-                  <span className="display-kicker text-[color:var(--projects-accent-soft)]">{project.index}</span>
-                </div>
+              <div data-case-cell className="modular-box case-hero-main md:col-span-2 lg:col-span-3 flex flex-col justify-between">
+                <span className="pattern pattern--weave pattern--br pattern--lg" aria-hidden="true" />
+                <nav className="case-breadcrumb" aria-label="Breadcrumb">
+                  <Link href="/projects" data-cursor="BACK">Projects</Link>
+                  <span aria-hidden="true">/</span>
+                  <span>{project.label}</span>
+                  <span className="case-index">{project.index}</span>
+                </nav>
                 <div>
-                  <span className="ring-icon mb-7" aria-hidden="true">
-                    <CircleDot className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  </span>
-                  <h1 id="project-detail-title" className="modular-display max-w-[9ch] text-[clamp(3.5rem,6.2vw,6.7rem)] text-[color:var(--text-strong)]">
+                  <h1 id="case-title" className="modular-display case-title">
                     {project.title}<span className="accent-stop">.</span>
                   </h1>
-                </div>
-                <p className="max-w-[29ch] border-t border-[color:var(--line-strong)] pt-4 text-sm leading-6 text-[color:var(--text-muted)]">
-                  {project.summary}
-                </p>
-              </div>
-
-              <div data-project-detail-cell className="modular-box project-detail-brief flex flex-col justify-between">
-                <div className="text-center">
-                  <p className="display-kicker text-[color:var(--projects-accent-soft)]">{project.eyebrow}</p>
-                  <h2 className="modular-display mx-auto mt-4 max-w-[13ch] text-[clamp(3rem,5vw,5.7rem)] text-[color:var(--text-strong)]">
-                    Built around the <span className="projects-accent-word">real route</span><span className="accent-stop">.</span>
-                  </h2>
-                  <p className="mx-auto mt-5 max-w-[44ch] text-sm leading-6 text-[color:var(--text-muted)]">{project.body}</p>
-                </div>
-                <div className="project-detail-proof-row" aria-label="Project proof points">
-                  {project.proof.map((item) => (
-                    <article key={item.label}>
-                      <strong>{item.label}</strong>
-                      <span>{item.value}</span>
-                    </article>
-                  ))}
+                  <p className="case-summary">{project.summary}</p>
                 </div>
               </div>
 
-              <Link href="/projects" data-cursor="BACK" data-motion-link data-project-detail-cell className="modular-box project-detail-back group flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <p className="display-kicker text-[color:var(--text-faint)]">Back to work</p>
-                  <ArrowLeft className="h-4 w-4 text-[color:var(--projects-accent-soft)] transition-transform duration-300 group-hover:-translate-x-1" />
-                </div>
-                <div>
-                  <p className="modular-display text-[clamp(2.6rem,4.5vw,4.8rem)] text-[color:var(--text-strong)]">
-                    Selected <span className="projects-accent-word">systems</span><span className="accent-stop">.</span>
-                  </p>
-                  <div className="mt-7 flex items-center justify-between border-t border-[color:var(--line-strong)] pt-4">
-                    <span data-motion-label className="display-kicker text-[color:var(--text-muted)]">View all cases</span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              <aside data-case-cell className="modular-box case-hero-meta md:col-span-2 lg:col-span-1 flex flex-col justify-between">
+                <dl className="case-facts">
+                  <div>
+                    <dt>Industry</dt>
+                    <dd>{project.label}</dd>
                   </div>
+                  <div>
+                    <dt>Type</dt>
+                    <dd>{typeLabel(project)}</dd>
+                  </div>
+                  <div>
+                    <dt>Focus</dt>
+                    <dd>{project.eyebrow}</dd>
+                  </div>
+                  {project.metric && (
+                    <div>
+                      <dt>{project.metric.label}</dt>
+                      <dd className="case-facts-metric">{project.metric.value}</dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="case-hero-actions">
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noopener noreferrer" data-cursor="VISIT" className="case-button case-button--primary group">
+                      Visit live product
+                      <ArrowUpRight aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
+                  ) : project.confidential ? (
+                    <p className="case-nda-note">Built under NDA — the client&apos;s name and screens are withheld; the visual below is illustrative.</p>
+                  ) : null}
+                  <Link href="/projects" data-cursor="BACK" className="case-button group">
+                    <ArrowLeft aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+                    All projects
+                  </Link>
                 </div>
-              </Link>
+              </aside>
+            </div>
+          </section>
 
-              <div data-project-detail-cell className="modular-box project-detail-challenge flex flex-col justify-between">
-                <p className="display-kicker text-[color:var(--text-faint)]">Before</p>
-                <p className="max-w-[23ch] text-[clamp(1.35rem,2vw,2.1rem)] leading-[1.08] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
-                  {project.challenge}
-                </p>
+          {/* 2 — The product itself. */}
+          <section className="case-visual" data-chapter="Visual" data-motion-own aria-label={`${project.title} visual`}>
+            <figure data-case-frame className="case-frame">
+              <div className="case-frame-bar" aria-hidden="true">
+                <span /><span /><span />
+                <em>{liveHost ?? (project.image ? project.title : `${project.title} · illustration`)}</em>
+              </div>
+              <div className="case-frame-media">
+                <CaseVisual project={project} priority sizes="(min-width: 1024px) 90vw, 100vw" />
+                {project.metric && (
+                  <div className="case-frame-metric">
+                    <strong>{project.metric.value}</strong>
+                    <span>{project.metric.label}</span>
+                  </div>
+                )}
+              </div>
+            </figure>
+          </section>
+
+          {/* 3 — The story in three beats, opened by the case's own result. */}
+          <section className="chapter-steel projects-chapter case-story" data-chapter="Story" data-motion-own aria-labelledby="case-result">
+            <div className="modular-grid case-story-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
+
+              <div data-case-cell className="modular-box case-result md:col-span-2 lg:col-span-2 flex flex-col justify-between">
+                <span className="pattern pattern--ticks pattern--tr" aria-hidden="true" />
+                <p className="display-kicker text-[color:var(--text-dim)]">The result</p>
+                <h2 id="case-result" className="modular-display case-result-title">
+                  {resultWords.slice(0, 3).join(" ")} <span className="projects-accent-word">{resultWords.slice(3).join(" ")}</span><span className="accent-stop">.</span>
+                </h2>
               </div>
 
-              <div data-project-detail-cell className="modular-box modular-box-dark project-detail-outcome flex flex-col justify-between">
-                <p className="display-kicker text-white/60">After</p>
-                <div>
-                  <p className="modular-display max-w-[11ch] text-[clamp(2.7rem,4.7vw,5.1rem)] text-white">
-                    {project.result.split(" ").slice(0, 3).join(" ")} <span className="projects-accent-word">{project.result.split(" ").slice(3, 5).join(" ")}</span><span className="accent-stop">.</span>
-                  </p>
-                  <p className="mt-6 max-w-[36ch] text-sm leading-6 text-white/72">{project.outcome}</p>
-                </div>
+              <div data-case-cell className="modular-box case-body md:col-span-2 lg:col-span-2 flex flex-col justify-end">
+                <p className="case-body-text">{project.body}</p>
+              </div>
+
+              {[
+                { step: "01", title: "The challenge", text: project.challenge },
+                { step: "02", title: "What we built", text: project.system },
+                { step: "03", title: "The outcome", text: project.outcome },
+              ].map((beat) => (
+                <article key={beat.step} data-case-cell className="modular-box case-beat flex flex-col justify-between">
+                  <span className="case-beat-step">{beat.step}</span>
+                  <div>
+                    <h3 className="case-beat-title">{beat.title}</h3>
+                    <p className="case-beat-text">{beat.text}</p>
+                  </div>
+                </article>
+              ))}
+
+              <article data-case-cell className="modular-box case-proof flex flex-col justify-between">
+                <span className="case-beat-step">At a glance</span>
+                <dl className="case-proof-list">
+                  {project.proof.map((item) => (
+                    <div key={item.label}>
+                      <dt>{item.label}</dt>
+                      <dd>{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            </div>
+          </section>
+
+          {/* 4 — What was built, and with what. */}
+          <section className="chapter-obsidian projects-chapter case-build" data-chapter="Build" data-motion-own aria-label="Scope and stack">
+            <div className="modular-grid case-build-grid technical-grid-host">
+              <TechnicalGrid className="section-technical-grid" />
+
+              <div data-case-cell className="modular-box case-build-cell md:col-span-1 lg:col-span-2">
+                <p className="display-kicker text-[color:var(--text-dim)]">Scope</p>
+                <ul className="case-scope">
+                  {project.scope.map((item) => (
+                    <li key={item}>
+                      <Check aria-hidden="true" strokeWidth={1.75} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div data-case-cell className="modular-box case-build-cell md:col-span-1 lg:col-span-2">
+                <p className="display-kicker text-[color:var(--text-dim)]">Stack</p>
+                <ul className="case-stack">
+                  {project.stack.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           </section>
 
-          <section className="chapter-steel projects-chapter project-detail-chapter" data-chapter="Inside" aria-labelledby="project-system-title">
-            <div className="modular-grid project-detail-system-grid modular-grid--viewport technical-grid-host">
+          {/* 5 — Keep going: the next case, or start one. */}
+          <section className="chapter-steel projects-chapter case-next" data-chapter="Next" data-motion-own aria-label="Next project">
+            <div className="modular-grid case-next-grid technical-grid-host">
               <TechnicalGrid className="section-technical-grid" />
 
-              <div data-project-detail-cell className="modular-box project-detail-system-head md:col-span-2 lg:col-span-2 flex flex-col justify-between">
-                <p className="display-kicker text-[color:var(--text-dim)]">System shape</p>
-                <h2 id="project-system-title" className="modular-display max-w-[10ch] text-[clamp(3.4rem,7vw,7rem)] text-[color:var(--text-strong)]">
-                  Inside the <span className="projects-accent-word">build</span><span className="accent-stop">.</span>
-                </h2>
-              </div>
-
-              <div data-project-detail-cell className="modular-box project-detail-system-note flex flex-col justify-between">
-                <p className="display-kicker text-[color:var(--text-faint)]">System route</p>
-                <p className="max-w-[22ch] text-[clamp(1.35rem,2vw,2.05rem)] leading-[1.1] tracking-[-0.035em] text-[color:var(--text-body)]" style={{ fontFamily: "var(--font-display)" }}>
-                  {project.system}
-                </p>
-              </div>
-
-              <Link href="/contact" data-cursor="START" data-motion-link data-project-detail-cell className="modular-box project-detail-start group flex flex-col justify-between">
-                <p className="display-kicker text-[color:var(--text-faint)]">Need something similar?</p>
-                <div>
-                  <p className="modular-display text-[clamp(2.8rem,4.7vw,5rem)] text-[color:var(--text-strong)]">
-                    Open a <span className="projects-accent-word">brief</span><span className="accent-stop">.</span>
+              <Link href={`/projects/${next.slug}`} data-cursor="NEXT" data-case-cell className="modular-box case-next-card md:col-span-2 lg:col-span-3 group">
+                <div className="case-next-copy">
+                  <p className="display-kicker text-[color:var(--text-dim)]">Next case · {next.index}</p>
+                  <p className="modular-display case-next-title">
+                    {next.title}<span className="accent-stop">.</span>
                   </p>
-                  <div className="mt-7 flex items-center justify-between border-t border-[color:var(--line-strong)] pt-4">
-                    <span data-motion-label className="display-kicker text-[color:var(--text-muted)]">Start project</span>
-                    <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
-                  </div>
+                  <p className="case-next-summary">{next.summary}</p>
+                  <span className="case-next-cta">
+                    View case
+                    <ArrowRight aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
+                </div>
+                <div className="case-next-thumb">
+                  <CaseVisual project={next} sizes="(min-width: 1024px) 30vw, 100vw" />
                 </div>
               </Link>
 
-              <article data-project-detail-cell className="modular-box project-detail-card flex flex-col justify-between">
-                <ProjectDetailList title="Scope" icon={<Layers3 className="h-3.5 w-3.5" strokeWidth={1.5} />} items={project.scope} />
-              </article>
-
-              <article data-project-detail-cell className="modular-box project-detail-card flex flex-col justify-between">
-                <ProjectDetailList title="Stack" icon={<Route className="h-3.5 w-3.5" strokeWidth={1.5} />} items={project.stack} />
-              </article>
-
-              <article data-project-detail-cell className="modular-box project-detail-card project-detail-card-wide md:col-span-2 lg:col-span-2 flex flex-col justify-between">
+              <Link href="/contact" data-cursor="START" data-case-cell className="modular-box modular-box-dark case-start md:col-span-2 lg:col-span-1 group flex flex-col justify-between">
+                <span className="pattern pattern--cross pattern--tr" aria-hidden="true" />
+                <p className="display-kicker text-white/55">Need something similar?</p>
                 <div>
-                  <span className="projects-small-icon" aria-hidden="true">
-                    <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  </span>
-                  <p className="mt-6 display-kicker text-[color:var(--text-faint)]">Decision logic</p>
-                  <h3 className="modular-display mt-3 max-w-[11ch] text-[clamp(2.1rem,3.7vw,3.9rem)] text-[color:var(--text-strong)]">
-                    Fit before <span className="projects-accent-word">fashion</span><span className="accent-stop">.</span>
-                  </h3>
+                  <p className="modular-display text-[clamp(2.4rem,3.6vw,3.8rem)] text-white">
+                    Start a <span className="projects-accent-word">project</span><span className="accent-stop">.</span>
+                  </p>
+                  <div className="mt-6 flex items-center justify-between border-t border-white/15 pt-4">
+                    <span className="display-kicker text-white/65">Free discovery</span>
+                    <ArrowUpRight className="h-4 w-4 text-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                  </div>
                 </div>
-                <p className="mt-8 max-w-[44ch] border-t border-[color:var(--line-subtle)] pt-4 text-sm leading-6 text-[color:var(--text-muted)]">
-                  Requested technology is respected, then tested against cost, maintainability, performance, and long-term ownership.
-                </p>
-              </article>
+              </Link>
             </div>
           </section>
         </main>
         <Footer />
       </div>
     </div>
-  );
-}
-
-function ProjectDetailList({ title, icon, items }: { title: string; icon: React.ReactNode; items: string[] }) {
-  return (
-    <>
-      <div>
-        <span className="projects-small-icon" aria-hidden="true">
-          {icon}
-        </span>
-        <p className="mt-6 display-kicker text-[color:var(--text-faint)]">{title}</p>
-      </div>
-      <ul className="project-detail-list">
-        {items.map((item, index) => (
-          <li key={item}>
-            <span>0{index + 1}</span>
-            <strong>{item}</strong>
-            <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
-          </li>
-        ))}
-      </ul>
-    </>
   );
 }

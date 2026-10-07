@@ -1,47 +1,21 @@
 /* Option 2 rails + option 4 nodes, shared by every structural content grid.
    Controls and navigation retain solid borders so interaction chrome remains
    distinct from the page's spatial system. */
+/* One quiet palette for every rail, bracket and node. The grid is texture —
+   it should be felt behind the content, never compete with it. */
+:root {
+  --grid-rail: rgba(220, 226, 255, 0.085);
+  --grid-rail-accent: rgba(143, 156, 255, 0.16);
+  --grid-tick: rgba(174, 184, 255, 0.2);
+  --grid-node-border: rgba(220, 226, 255, 0.26);
+  --grid-node-fill: #0a1018;
+}
+
 .technical-grid {
   --technical-grid-edge-reveal: 1.25vw;
   position: absolute;
   inset: 0;
   pointer-events: none;
-}
-
-.technical-grid-perimeter {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.technical-grid-perimeter rect {
-  fill: none;
-  vector-effect: non-scaling-stroke;
-}
-
-.technical-grid-perimeter-base,
-.technical-grid-perimeter-accent {
-  x: 0.5px;
-  y: 0.5px;
-  width: calc(100% - 1px);
-  height: calc(100% - 1px);
-}
-
-.technical-grid-perimeter-base {
-  stroke: rgba(220, 226, 255, 0.2);
-  stroke-width: 1px;
-  stroke-dasharray: 72 20;
-}
-
-.technical-grid-perimeter-accent {
-  stroke: rgba(143, 156, 255, 0.52);
-  stroke-width: 1px;
-  stroke-dasharray: 4 88;
-  stroke-dashoffset: -80;
-  filter: drop-shadow(0 0 3px rgba(143, 156, 255, 0.22));
 }
 
 .technical-grid-line {
@@ -54,7 +28,7 @@
   bottom: 0;
   width: 1px;
   transform: translateX(-0.5px);
-  background: repeating-linear-gradient(to bottom, rgba(220, 226, 255, 0.2) 0 72px, transparent 72px 80px, rgba(143, 156, 255, 0.34) 80px 84px, transparent 84px 92px);
+  background: repeating-linear-gradient(to bottom, var(--grid-rail) 0 72px, transparent 72px 80px, var(--grid-rail-accent) 80px 84px, transparent 84px 92px);
 }
 
 .technical-grid-line--h {
@@ -62,7 +36,7 @@
   right: 0;
   height: 1px;
   transform: translateY(-0.5px);
-  background: repeating-linear-gradient(to right, rgba(220, 226, 255, 0.2) 0 92px, transparent 92px 101px, rgba(143, 156, 255, 0.36) 101px 105px, transparent 105px 114px);
+  background: repeating-linear-gradient(to right, var(--grid-rail) 0 92px, transparent 92px 101px, var(--grid-rail-accent) 101px 105px, transparent 105px 114px);
 }
 
 /* The outer slice represents a small visible part of the neighbouring empty
@@ -75,8 +49,7 @@
   content: "";
   position: absolute;
   display: block;
-  background: rgba(220, 226, 255, 0.24);
-  box-shadow: 0 0 4px rgba(143, 156, 255, 0.1);
+  background: var(--grid-rail);
 }
 
 .technical-grid-line--v::before,
@@ -113,22 +86,15 @@
   transform: translateX(100%);
 }
 
+/* Nodes: a small hollow diamond where rails meet. Corner brackets only frame
+   the outer corners of a section — repeating them at every node was what made
+   the grid read as loud. */
 .technical-grid-junction {
   position: absolute;
   z-index: 2;
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   transform: translate(-50%, -50%);
-  background:
-    linear-gradient(var(--accent-line), var(--accent-line)) left top / 6px 1px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) left top / 1px 6px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) right top / 6px 1px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) right top / 1px 6px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) left bottom / 6px 1px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) left bottom / 1px 6px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) right bottom / 6px 1px no-repeat,
-    linear-gradient(var(--accent-line), var(--accent-line)) right bottom / 1px 6px no-repeat;
-  filter: drop-shadow(0 0 6px rgba(95, 112, 216, 0.24));
 }
 
 .technical-grid-junction::after {
@@ -136,16 +102,28 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 7px;
-  height: 7px;
-  border: 1px solid rgba(220, 226, 255, 0.72);
-  background: #0a1018;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--grid-node-border);
+  background: var(--grid-node-fill);
   transform: translate(-50%, -50%) rotate(45deg);
-  box-shadow: 0 0 10px rgba(143, 156, 255, 0.2);
 }
 
 .technical-grid-corner {
   z-index: 4;
+  background:
+    linear-gradient(var(--grid-tick), var(--grid-tick)) left top / 5px 1px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) left top / 1px 5px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) right top / 5px 1px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) right top / 1px 5px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) left bottom / 5px 1px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) left bottom / 1px 5px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) right bottom / 5px 1px no-repeat,
+    linear-gradient(var(--grid-tick), var(--grid-tick)) right bottom / 1px 5px no-repeat;
+}
+
+.technical-grid-corner::after {
+  display: none;
 }
 
 .longbow-technical-grid {
@@ -161,6 +139,38 @@
    correctly on the border. */
 .chapter-route-stage:has(.chapter-route-technical-grid) {
   overflow: visible;
+}
+
+.home-project-glyph {
+  position: absolute;
+  z-index: 0;
+  top: 13%;
+  right: 7%;
+  width: min(46%, 10rem);
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  color: var(--accent-primary);
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.1;
+  filter: drop-shadow(0 0 18px rgba(95, 112, 216, 0.16));
+}
+
+.home-project-glyph .is-accent {
+  stroke: var(--accent-primary);
+}
+
+.home-project-glyph .is-accent-fill {
+  fill: #111827;
+  stroke: var(--accent-primary);
+}
+
+.home-project-glyph .is-check {
+  stroke: var(--accent-strong);
+  stroke-width: 1.6;
 }
 
 .home-intro-grid {
@@ -193,14 +203,59 @@
 .modular-box::after,
 .complete-grid-junctions span,
 .longbow-grid-junctions span {
-  width: 7px;
-  height: 7px;
-  border: 1px solid rgba(220, 226, 255, 0.72);
-  background: #0a1018;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--grid-node-border);
+  background: var(--grid-node-fill);
   mask: none;
   -webkit-mask: none;
-  box-shadow: 0 0 10px rgba(143, 156, 255, 0.18);
+  box-shadow: none;
   filter: none;
+}
+
+/* Hosts with a TechnicalGrid hand every rule and node to the overlay at all
+   widths. Previously this only happened at >=1024px; below that the overlay
+   was hidden and the cells fell back to their own dashed borders and bright
+   diamonds, so phones and tablets saw a different grid from desktop. */
+/* The grid measures cells against its host, so the host must be their offset
+   parent. (Chapter stages are already positioned — sticky.) */
+.technical-grid-host,
+.footer-grid--technical {
+  position: relative;
+}
+
+.technical-grid-host,
+.footer-grid--technical {
+  border-top-color: transparent;
+  border-left-color: transparent;
+}
+
+.technical-grid-host > *,
+.footer-grid--technical > * {
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.technical-grid-host::before,
+.technical-grid-host::after,
+.technical-grid-host > .modular-box::after,
+.footer-grid--technical::before,
+.footer-grid--technical::after,
+.footer-grid--technical > .modular-box::after {
+  display: none;
+}
+
+.section-technical-grid,
+.footer-technical-grid {
+  z-index: 15;
+}
+
+/* The measured grids mark real cell edges; this fixed full-viewport overlay
+   drew 25/50/75% rails through headlines on top of them. */
+.viewport-frame-grid {
+  display: none !important;
 }
 
 .modular-grid::before {
@@ -221,6 +276,73 @@
 }
 
 @media (min-width: 1024px) {
+  .home-projects-scroll {
+    height: 190svh;
+    overflow: visible !important;
+  }
+
+  .home-projects-scroll > .home-solutions-grid {
+    position: sticky;
+    top: var(--page-frame);
+  }
+
+  .home-projects-scroll .home-solutions-lead {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    overflow: hidden;
+    contain: paint;
+  }
+
+  .home-projects-scroll .home-solutions-lead h2 {
+    box-sizing: border-box;
+    width: 100%;
+    padding-left: 0.16em;
+    padding-right: 0.08em;
+  }
+
+  .home-projects-scroll .home-solutions-cta {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .home-project-card--1 {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .home-project-card--2 {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .home-project-card--3 {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .home-project-card--4 {
+    grid-column: 4;
+    grid-row: 2;
+  }
+
+  .home-projects-scroll .home-project-card {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    justify-content: flex-end !important;
+    isolation: isolate;
+  }
+
+  .home-projects-scroll .home-project-card > div {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .home-projects-scroll .home-project-card h3 {
+    font-size: clamp(1.8rem, 2.55vw, 3rem);
+  }
+
   .technical-grid-host {
     position: relative;
     overflow: visible;
@@ -318,30 +440,34 @@
     --technical-grid-gutter: 0px;
   }
 
-  .viewport-frame-grid {
-    background-image:
-      repeating-linear-gradient(to bottom, rgba(220, 226, 255, 0.2) 0 72px, transparent 72px 80px, rgba(143, 156, 255, 0.34) 80px 84px, transparent 84px 92px),
-      repeating-linear-gradient(to bottom, rgba(220, 226, 255, 0.2) 0 72px, transparent 72px 80px, rgba(143, 156, 255, 0.34) 80px 84px, transparent 84px 92px),
-      repeating-linear-gradient(to bottom, rgba(220, 226, 255, 0.2) 0 72px, transparent 72px 80px, rgba(143, 156, 255, 0.34) 80px 84px, transparent 84px 92px);
-    background-position: 25% 0, 50% 0, 75% 0;
-    background-size: 1px 100%, 1px 100%, 1px 100%;
-    background-repeat: no-repeat;
-  }
-
   .longbow-hero-grid::after {
     background-image: none;
   }
 }
 
 @media (max-width: 1023px) {
-  .section-technical-grid,
-  .footer-technical-grid {
-    display: none;
+  .home-projects-scroll {
+    height: auto;
   }
 }
 
+/* Frame edges sit fully inside the host. Inner rails straddle their cell
+   edge by half a pixel, but sections clip overflow (always on phones), so a
+   straddling frame edge lost half its width and all but vanished. */
+.technical-grid-edge.technical-grid-line--h,
+.technical-grid-edge.technical-grid-line--v {
+  transform: none;
+}
+
+.technical-grid-edge--right {
+  transform: translateX(-100%) !important;
+}
+
+/* A 1px rail at desktop alpha all but disappears on a small high-density
+   screen; phones get a slightly firmer ink. */
 @media (max-width: 767px) {
-  .chapter-route-technical-grid .is-quarter {
-    display: none;
+  :root {
+    --grid-rail: rgba(220, 226, 255, 0.13);
+    --grid-rail-accent: rgba(143, 156, 255, 0.24);
   }
 }

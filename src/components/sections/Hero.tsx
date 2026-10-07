@@ -96,7 +96,7 @@ export const Hero: React.FC = () => {
   return (
     <section ref={heroRef} id="home" className="chapter-smoke relative" data-chapter="Direction">
       <div data-hero-grid className="longbow-hero-grid">
-        <TechnicalGrid className="longbow-technical-grid" />
+        <TechnicalGrid measure={false} className="longbow-technical-grid" />
 
         <div className="longbow-hero-visual" aria-hidden="true">
           <div className="longbow-hero-wash" />

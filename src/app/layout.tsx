@@ -10,6 +10,9 @@ import { CustomCursor } from "@/components/common/CustomCursor";
 import { SmoothScroll } from "@/components/common/SmoothScroll";
 import { CookieConsent } from "@/components/common/CookieConsent";
 import { AgentationDevTools } from "@/components/common/AgentationDevTools";
+import { PageTransition } from "@/components/common/PageTransition";
+import { SoundToggle } from "@/components/common/SoundToggle";
+import { Analytics } from "@/components/common/Analytics";
 
 // Body / UI sans. Headings (EB Garamond), labels (Geist Mono) and the brand
 // display (Bebas Neue) are self-hosted via @font-face in globals.css.
@@ -47,6 +50,8 @@ const structuredData = {
       image: { "@id": `${SITE_URL}/#logo` },
       description: DESCRIPTION,
       slogan: "Software that fits.",
+      foundingDate: "2020",
+      numberOfEmployees: { "@type": "QuantitativeValue", minValue: 7, maxValue: 8 },
       email: "hello@owlsey.com",
       areaServed: { "@type": "Place", name: "Worldwide" },
       knowsAbout: [
@@ -223,7 +228,10 @@ export default function RootLayout({
           <LoaderWrapper />
           <CustomCursor />
           {children}
+          <PageTransition />
+          <SoundToggle />
           <CookieConsent />
+          <Analytics />
           <AgentationDevTools />
         </ThemeProvider>
       </body>

@@ -6,12 +6,16 @@ import { ArrowUp } from "lucide-react";
 
 type Section = { id: string; label: string };
 
+/* Kept in document order — the rail's markers map 1:1 onto section ids that
+   actually exist on the homepage. */
 const HOME_SECTIONS: Section[] = [
   { id: "home", label: "Hero" },
+  { id: "experience", label: "Engage" },
   { id: "projects", label: "Works" },
-  { id: "experience", label: "Craft" },
+  { id: "products", label: "Products" },
+  { id: "industries", label: "Sectors" },
   { id: "tech", label: "Stack" },
-  { id: "blog", label: "Trust" },
+  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Talk" },
 ];
 
