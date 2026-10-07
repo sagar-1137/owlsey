@@ -9,7 +9,8 @@ import { TechnicalGrid } from "@/components/common/TechnicalGrid";
  * readable break before the closing CTA answers the questions buyers ask
  * before they write in — and gives the long dark scroll a breath.
  *
- * Native <details> keeps it accessible and JS-free.
+ * Native <details> keeps it accessible and JS-free. They share a `name`, so
+ * one answer is open at a time and the list always fits the pinned frame.
  */
 const faqs = [
   {
@@ -49,7 +50,7 @@ const faqSchema = {
 };
 
 export const Faq: React.FC = () => (
-  <section id="faq" className="home-faq theme-paper" data-chapter="Questions" aria-labelledby="faq-title">
+  <section id="faq" className="home-faq theme-paper home-pin-chapter home-pin-chapter--short" data-chapter="Questions" data-pin-chapter data-motion-own aria-labelledby="faq-title">
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -77,7 +78,7 @@ export const Faq: React.FC = () => (
       <div className="modular-box home-faq-list-cell md:col-span-2 lg:col-span-2" data-motion-static>
       <div className="home-faq-list">
         {faqs.map(({ q, a }, index) => (
-          <details key={q} className="home-faq-item" open={index === 0}>
+          <details key={q} name="home-faq" data-pin-item className="home-faq-item" open={index === 0}>
             <summary>
               <span className="home-faq-num">{String(index + 1).padStart(2, "0")}</span>
               <span className="home-faq-q">{q}</span>

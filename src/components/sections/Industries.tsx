@@ -22,7 +22,7 @@ const casesFor = (slugs: string[]) =>
   slugs.flatMap((slug) => PROJECT_CASES.filter((project) => project.slug === slug));
 
 export const Industries: React.FC = () => (
-  <section id="industries" className="section-dark chapter-smoke" data-chapter="Industries" aria-labelledby="industries-title">
+  <section id="industries" className="section-dark chapter-smoke home-pin-chapter" data-chapter="Industries" data-pin-chapter data-motion-own aria-labelledby="industries-title">
     <div className="modular-grid industries-grid technical-grid-host">
       <TechnicalGrid className="section-technical-grid" />
 

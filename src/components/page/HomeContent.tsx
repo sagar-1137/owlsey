@@ -1,12 +1,12 @@
 import React from "react";
 import { DeferredEnhancements } from "@/components/common/DeferredEnhancements";
+import { PinnedChapters } from "@/components/common/PinnedChapters";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HomeIntro } from "@/components/sections/HomeIntro";
 import { ChapterRoute } from "@/components/sections/ChapterRoute";
 import { StatsBar } from "@/components/sections/StatsBar";
 import { Projects } from "@/components/sections/Projects";
-import { ClosingCta } from "@/components/sections/ClosingCta";
 import { Faq } from "@/components/sections/Faq";
 import { OwnProducts } from "@/components/sections/OwnProducts";
 import { Industries } from "@/components/sections/Industries";
@@ -18,6 +18,7 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-[image:var(--shell-gradient)] px-0 py-0 text-[color:var(--text-strong)] lg:px-0">
       <DeferredEnhancements />
+      <PinnedChapters />
       <div className="viewport-frame-grid" aria-hidden="true" />
       <div className="modular-shell palette-white home-shell w-full overflow-visible bg-[color:var(--surface-base)] shadow-[var(--shadow-shell)]">
         <HomeIntro />
@@ -25,9 +26,12 @@ export default function HomeContent() {
         <main>
           <ProofStrip />
           {/* Narrative: method → how we engage → capabilities → proof (client
-              work, our own products, sectors shipped) → the stack as a compact
-              band → questions → the closing invitation. Only the method and
-              capabilities chapters still pin; everything after scrolls freely. */}
+              work, our own products, sectors shipped) → the stack → questions →
+              the footer's invitation. The method, capabilities and Projects
+              chapters pin with their own timelines;
+              the sections after them are [data-pin-chapter]s driven by
+              PinnedChapters. Testimonials stay a calm, unpinned reading band,
+              and the footer is the closing invitation (no separate CTA). */}
           <ChapterRoute
             id="process"
             eyebrow="From brief to release"
@@ -60,7 +64,6 @@ export default function HomeContent() {
           <Testimonials />
           <StackStrip />
           <Faq />
-          <ClosingCta />
         </main>
         <Footer />
       </div>

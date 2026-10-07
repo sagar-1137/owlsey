@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:deploy": "npx wrangler pages deploy .vercel/output/static --project-name=owlsey"
+    "pages:deploy": "npm run build && npx wrangler pages deploy out --project-name=owlsey --branch=main",
+    "pages:preview": "npm run build && npx wrangler pages deploy out --project-name=owlsey --branch=preview"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -7661,100 +7661,6 @@ html.js [data-hero-eyebrow-tick] {
   color: var(--text-faint);
 }
 
-/* ── Sound toggle ──────────────────────────────────────────────────────── */
-.sound-toggle {
-  position: fixed;
-  top: calc(var(--page-frame, 6px) + 14px);
-  right: calc(var(--page-frame, 6px) + 14px);
-  /* Below the cookie banner (90), so on phones the banner's buttons are never
-     covered while it is open. */
-  z-index: 85;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 36px;
-  padding: 0 0.85rem;
-  border: 1px solid rgba(220, 226, 255, 0.14);
-  background: rgba(9, 14, 21, 0.72);
-  backdrop-filter: blur(12px);
-  color: var(--text-muted);
-  font-family: var(--font-label);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  transition: border-color 200ms ease, color 200ms ease;
-}
-
-.sound-toggle:hover,
-.sound-toggle.is-on {
-  border-color: rgba(143, 156, 255, 0.45);
-  color: var(--text-strong);
-}
-
-.sound-toggle:focus-visible {
-  outline: 1px solid var(--accent-strong);
-  outline-offset: 3px;
-}
-
-.sound-toggle-bars {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 10px;
-}
-
-.sound-toggle-bars span {
-  width: 2px;
-  height: 3px;
-  background: currentColor;
-  transition: height 200ms ease;
-}
-
-.sound-toggle.is-on .sound-toggle-bars span {
-  background: var(--accent-strong);
-  animation: sound-bar 900ms ease-in-out infinite;
-}
-
-.sound-toggle.is-on .sound-toggle-bars span:nth-child(2) { animation-delay: -300ms; }
-.sound-toggle.is-on .sound-toggle-bars span:nth-child(3) { animation-delay: -600ms; }
-.sound-toggle.is-on .sound-toggle-bars span:nth-child(4) { animation-delay: -150ms; }
-
-@keyframes sound-bar {
-  0%, 100% { height: 3px; }
-  50% { height: 10px; }
-}
-
-@media (max-width: 767px) {
-  /* Phones get the bars only; the label crowded the centred nav. */
-  .sound-toggle-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-
-  /* The phone nav bar spans the full width, so the top-right corner sat on
-     top of it. The bottom-left corner is free on phones. */
-  .sound-toggle {
-    top: auto;
-    right: auto;
-    bottom: calc(var(--page-frame, 6px) + 16px);
-    left: calc(var(--page-frame, 6px) + 16px);
-    min-height: 40px;
-    min-width: 40px;
-    justify-content: center;
-    padding: 0 0.6rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sound-toggle.is-on .sound-toggle-bars span {
-    animation: none;
-    height: 8px;
-  }
-}
-
 /* ── Featured project cards: real screenshots and measured numbers ──────── */
 .home-project-shot {
   position: relative;
@@ -8370,6 +8276,108 @@ html.js [data-hero-eyebrow-tick] {
   .home-method-pin > .modular-grid {
     position: sticky;
     top: var(--page-frame);
+  }
+}
+
+/* Full-screen chapters after "Proof in production". Same mechanics as the
+   Projects/method pins: the section owns extra scroll distance while its grid
+   holds the viewport, and PinnedChapters scrubs the cells in. The gate matches
+   PIN_CHAPTER_QUERY — short or touch screens keep the natural flow, so
+   content can never be trapped below a sticky frame. */
+@media (min-width: 1024px) and (min-height: 680px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .home-pin-chapter {
+    height: var(--pin-length, 170svh);
+    overflow: visible !important;
+  }
+
+  .home-pin-chapter > .modular-grid {
+    position: sticky;
+    top: var(--page-frame);
+    height: var(--viewport-grid-height);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+
+  .home-pin-chapter > .modular-grid > .modular-box {
+    min-height: 0;
+  }
+
+  /* Heading band + two rows of sectors. */
+  .home-pin-chapter > .industries-grid {
+    grid-template-rows: minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .home-pin-chapter .industries-lead h2 {
+    font-size: clamp(3rem, 4.8vw, 5.4rem);
+  }
+
+  /* The FAQ frame is bounded by height, so its rhythm scales with it. */
+  .home-pin-chapter .home-faq-list-cell {
+    padding-block: clamp(2rem, 7vh, 6rem);
+  }
+
+  .home-pin-chapter .home-faq-item summary {
+    padding-block: clamp(1.1rem, 2.6vh, 1.6rem);
+  }
+
+  /* Testimonials: one quote at a time. The cards share the stage beside the
+     heading; the Testimonials timeline hands over between them. */
+  .testimonials-pin {
+    height: calc(100svh + var(--quote-count, 3) * 65svh);
+    overflow: visible !important;
+  }
+
+  .testimonials-pin > .testimonials-grid {
+    position: sticky;
+    top: var(--page-frame);
+    height: var(--viewport-grid-height);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .testimonials-pin .testimonials-lead {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .testimonials-pin .testimonial-card {
+    grid-column: 2 / 5;
+    grid-row: 1;
+    min-height: 0;
+    justify-content: flex-end;
+    gap: clamp(1.75rem, 4vh, 3rem);
+    padding: clamp(2rem, 4vw, 4.5rem);
+  }
+
+  .testimonials-pin .testimonials-grid > .testimonial-card .testimonial-quote {
+    max-width: 42ch;
+    font-size: clamp(1.9rem, 2.75vw, 3.1rem);
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    color: var(--text-strong);
+  }
+
+  .testimonials-pin .testimonials-grid > .testimonial-card .testimonial-cite {
+    flex-direction: row;
+    align-items: baseline;
+    max-width: 62rem;
+    font-size: 11px;
+  }
+
+  .testimonials-pin .testimonials-grid > .testimonial-card .testimonial-link {
+    margin: 0 0 0 auto;
+  }
+
+  .testimonials-pin .motif-quote {
+    font-size: clamp(14rem, 22vw, 22rem);
+  }
+
+  .testimonials-counter {
+    display: flex !important;
+  }
+
+  /* A single open answer needs less hold. */
+  .home-pin-chapter--short {
+    --pin-length: 150svh;
   }
 }
 
@@ -9131,4 +9139,32 @@ html.js [data-hero-eyebrow-tick] {
 
 .contact-done-reset:hover {
   color: var(--text-strong);
+}
+
+/* Place counter for the pinned testimonials ("02 / 03"). Hidden unless the
+   chapter pins — the stacked layout shows every quote at once. */
+.testimonials-counter {
+  display: none;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 1rem;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.testimonials-counter-mask {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  line-height: 1.2;
+  color: var(--accent-strong);
+}
+
+.testimonials-counter-mask > span {
+  display: flex;
+  flex-direction: column;
 }

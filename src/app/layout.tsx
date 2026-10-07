@@ -11,7 +11,6 @@ import { SmoothScroll } from "@/components/common/SmoothScroll";
 import { CookieConsent } from "@/components/common/CookieConsent";
 import { AgentationDevTools } from "@/components/common/AgentationDevTools";
 import { PageTransition } from "@/components/common/PageTransition";
-import { SoundToggle } from "@/components/common/SoundToggle";
 import { Analytics } from "@/components/common/Analytics";
 
 // Body / UI sans. Headings (EB Garamond), labels (Geist Mono) and the brand
@@ -43,8 +42,10 @@ const structuredData = {
       logo: {
         "@type": "ImageObject",
         "@id": `${SITE_URL}/#logo`,
-        url: `${SITE_URL}/icons/favicon.svg`,
-        contentUrl: `${SITE_URL}/icons/favicon.svg`,
+        url: `${SITE_URL}/icons/icon-512.png`,
+        contentUrl: `${SITE_URL}/icons/icon-512.png`,
+        width: 512,
+        height: 512,
         caption: SITE_NAME,
       },
       image: { "@id": `${SITE_URL}/#logo` },
@@ -137,8 +138,9 @@ export const metadata: Metadata = {
       { url: "/icons/favicon.svg", type: "image/svg+xml" },
       { url: "/icons/favicon.png", type: "image/png", sizes: "32x32" },
     ],
+    // iOS ignores SVG touch icons; it needs a full-bleed 180px PNG.
     apple: [
-      { url: "/icons/apple-icon.svg", type: "image/svg+xml" },
+      { url: "/icons/apple-icon.png", type: "image/png", sizes: "180x180" },
     ],
     shortcut: "/icons/favicon.svg",
   },
@@ -229,7 +231,6 @@ export default function RootLayout({
           <CustomCursor />
           {children}
           <PageTransition />
-          <SoundToggle />
           <CookieConsent />
           <Analytics />
           <AgentationDevTools />

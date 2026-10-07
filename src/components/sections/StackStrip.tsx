@@ -85,7 +85,7 @@ const categories: Array<{ title: string; note: string; tools: Tool[] }> = [
 const principles = ["Proven in production", "Easy to hire for", "Supported for years"];
 
 export const StackStrip: React.FC = () => (
-  <section id="tech" className="section-dark chapter-ink" data-chapter="Stack" aria-labelledby="stack-title">
+  <section id="tech" className="section-dark chapter-ink home-pin-chapter" data-chapter="Stack" data-pin-chapter data-motion-own aria-labelledby="stack-title">
     <div className="modular-grid stack-grid technical-grid-host">
       <TechnicalGrid className="section-technical-grid" />
 

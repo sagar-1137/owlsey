@@ -22,7 +22,7 @@ const spanFor = (index: number) => {
 };
 
 export const OwnProducts: React.FC = () => (
-  <section id="products" className="section-dark chapter-ink" data-chapter="Products" aria-labelledby="products-title">
+  <section id="products" className="section-dark chapter-ink home-pin-chapter" data-chapter="Products" data-pin-chapter data-motion-own aria-labelledby="products-title">
     <div className="modular-grid own-products-grid technical-grid-host">
       <TechnicalGrid className="section-technical-grid" />
 

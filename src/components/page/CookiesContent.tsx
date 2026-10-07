@@ -6,14 +6,14 @@ import { ANALYTICS_ENABLED } from "@/components/common/Analytics";
 
 /**
  * Written against what the site actually stores today: a few first-party
- * browser-storage entries for consent, the intro, and interface sound. No
+ * browser-storage entries for consent and the intro. No
  * analytics or advertising scripts run; the optional categories stay off
  * until a visitor turns them on.
  */
 const COOKIE_CLAUSES = [
   {
     title: "What we store",
-    body: "We use a small amount of browser storage to make the site work: your cookie choice, whether you have already seen the opening animation this visit, and your interface-sound setting.",
+    body: "We use a small amount of browser storage to make the site work: your cookie choice and whether you have already seen the opening animation this visit.",
   },
   {
     title: "Essential",
