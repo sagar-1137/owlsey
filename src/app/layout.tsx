@@ -25,7 +25,7 @@ const SITE_URL = "https://owlsey.com";
 const SITE_NAME = "Owlsey";
 const TITLE = "Owlsey | Custom Software & Digital Solutions";
 const DESCRIPTION =
-  "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability. Turning your product vision into a production-ready reality.";
+  "Owlsey builds custom web apps, mobile apps and internal tools for growing businesses. Free discovery, a fixed estimate, and code you own.";
 
 /* ── Structured data (JSON-LD) ─────────────────────────────
    Organization + WebSite entities surface Owlsey as a knowledge
@@ -73,7 +73,8 @@ const structuredData = {
         availableLanguage: ["English"],
         areaServed: "Worldwide",
       },
-      sameAs: ["https://twitter.com/owlsey"],
+      // sameAs: add real profile URLs (LinkedIn, GitHub, X) once confirmed —
+      // pointing it at an account that isn't Owlsey's misleads search engines.
     },
     {
       "@type": "WebSite",

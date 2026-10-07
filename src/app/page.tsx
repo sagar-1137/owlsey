@@ -4,7 +4,7 @@ import HomeContent from "@/components/page/HomeContent";
 export const metadata: Metadata = {
   title: { absolute: "Owlsey | Custom Software & Digital Solutions" },
   description:
-    "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability. Turning your product vision into a production-ready reality.",
+    "Owlsey builds custom web apps, mobile apps and internal tools for growing businesses. Free discovery, a fixed estimate, and code you own.",
   alternates: { canonical: "https://owlsey.com" },
   keywords: [
     "custom software development",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Owlsey | Custom Software & Digital Solutions",
     description:
-      "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability.",
+      "Owlsey builds custom web apps, mobile apps and internal tools for growing businesses. Free discovery, a fixed estimate, and code you own.",
     url: "https://owlsey.com",
     siteName: "Owlsey",
     images: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Owlsey | Custom Software & Digital Solutions",
     description:
-      "Owlsey builds custom software, web applications, mobile apps, and internal tools — engineered for scale and reliability.",
+      "Owlsey builds custom web apps, mobile apps and internal tools for growing businesses. Free discovery, a fixed estimate, and code you own.",
     images: ["https://owlsey.com/twitter-image"],
   },
 };

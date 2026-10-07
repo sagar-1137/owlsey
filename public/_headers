@@ -16,8 +16,18 @@
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+# The pages.dev hosts mirror owlsey.com; keep them out of search so the real
+# domain is the only one indexed (canonical tags already point there).
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
+
 # SEO resources served fresh-ish.
 /robots.txt
   Cache-Control: public, max-age=3600
 /sitemap.xml
+  Cache-Control: public, max-age=3600
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600

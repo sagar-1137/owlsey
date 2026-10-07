@@ -25,14 +25,18 @@ export async function generateMetadata({ params }: ProjectCasePageProps): Promis
     };
   }
 
+  // "GymPro — Fitness SaaS | Owlsey": the label tells searchers what the
+  // project is, which the bare name alone never did.
+  const title = `${project.title} — ${project.label} | Owlsey`;
+
   return {
-    title: { absolute: `${project.title} | Owlsey Projects` },
+    title: { absolute: title },
     description: project.summary,
     alternates: {
       canonical: `https://owlsey.com/projects/${project.slug}`,
     },
     openGraph: {
-      title: `${project.title} | Owlsey Projects`,
+      title,
       description: project.summary,
       url: `https://owlsey.com/projects/${project.slug}`,
       siteName: "Owlsey",
@@ -49,7 +53,7 @@ export async function generateMetadata({ params }: ProjectCasePageProps): Promis
     },
     twitter: {
       card: "summary_large_image",
-      title: `${project.title} | Owlsey Projects`,
+      title,
       description: project.summary,
       images: ["https://owlsey.com/twitter-image"],
     },

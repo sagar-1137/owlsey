@@ -1,0 +1,47 @@
+# Owlsey
+
+> Owlsey is a custom software studio based in India. It designs, builds and supports custom web applications, mobile apps, internal tools, integrations and SaaS products for growing businesses.
+
+## Key facts
+
+- Building software since 2020; 28+ projects delivered.
+- Team: 7–8 core engineers plus a specialist network.
+- Engagement: free discovery, then a written scope and a fixed estimate before any build work starts.
+- Delivery: a demo every week; each finished part is tested and handed over for review as it is built.
+- Ownership: the source code, designs and IP belong to the client. NDA signed on request.
+- Support: the first months after launch are included at no cost, as set in the agreement.
+- Contact: hello@owlsey.com — replies within three business days.
+
+## What Owlsey builds
+
+- Web applications: customer portals, booking systems and business platforms.
+- Mobile products: iOS and Android apps, including offline support.
+- Internal tools: dashboards and admin panels that replace spreadsheets and manual handoffs.
+- Connected systems: integrations between CRM, ERP, payments and other tools.
+- SaaS platforms: subscription products with accounts, billing and roles.
+- AI and data: assistants, document processing and reporting.
+- E-commerce and fintech: stores, checkout, payment gateways and ledgers.
+- Cloud infrastructure: hosting, automated deployments and backups.
+
+## Frequently asked questions
+
+- How much does a custom software project cost? It depends on scope, integrations and timeline. Owlsey starts with a free discovery, then gives a written scope and a fixed estimate before build work begins — no open-ended billing.
+- How will we see progress? A demo every week. Each finished part is handed over for review as it is built, so changes surface early.
+- Who owns the code and the product? The client. Source code, designs and accounts are handed over, and the repository can live in the client's own organisation from day one.
+- Will you sign an NDA? Yes, before any details about the product or business are shared.
+- Can you take over an existing product? Yes. Owlsey starts with a code and architecture review, then stabilises, extends or rebuilds in stages without stopping the business.
+- What happens after launch? Monitoring, fixes, updates and new features on a monthly support plan, with the first months included as set in the agreement — or a full handover with documentation.
+
+## Pages
+
+- [Home](https://owlsey.com/): what Owlsey builds, how it works, selected work and FAQ
+- [Services](https://owlsey.com/services): custom platforms, internal tools, integrations and delivery
+- [Projects](https://owlsey.com/projects): case studies and Owlsey's own products
+- [Process & experience](https://owlsey.com/experience): how a project runs from brief to release
+- [Start a project](https://owlsey.com/contact): share a requirement or question
+
+## Optional
+
+- [Privacy](https://owlsey.com/privacy)
+- [Terms](https://owlsey.com/terms)
+- [Cookies](https://owlsey.com/cookies)
